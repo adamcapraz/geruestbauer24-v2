@@ -34,7 +34,7 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/geruestbau/eintragen" className="text-slate-300 hover:text-primary transition-colors">
+                <Link href="/auth/registrieren" className="text-slate-300 hover:text-primary transition-colors">
                   Firma eintragen
                 </Link>
               </li>
