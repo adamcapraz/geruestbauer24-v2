@@ -9,12 +9,13 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Label } from "@/components/ui/label"
 import { useAuth } from "@/hooks/use-auth"
 import { useToast } from "@/hooks/use-toast"
-import { Mail, Lock, ArrowLeft } from "lucide-react"
+import { Mail, Lock, ArrowLeft, Loader2 } from "lucide-react"
 
 export default function AnmeldenPage() {
   const [email, setEmail] = useState("")
   const [passwort, setPasswort] = useState("")
-  const { signIn, isLoading } = useAuth()
+  const [localLoading, setLocalLoading] = useState(false)
+  const { signIn } = useAuth()
   const { toast } = useToast()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -29,18 +30,13 @@ export default function AnmeldenPage() {
       return
     }
 
+    setLocalLoading(true)
     try {
-      await signIn(email, passwort, "email")
-      toast({
-        title: "Erfolgreich angemeldet",
-        description: "Sie werden weitergeleitet...",
-      })
-    } catch (error) {
-      toast({
-        title: "Anmeldung fehlgeschlagen",
-        description: "Bitte überprüfen Sie Ihre Zugangsdaten.",
-        variant: "destructive",
-      })
+      await signIn(email, passwort)
+    } catch {
+      // Error already handled in signIn
+    } finally {
+      setLocalLoading(false)
     }
   }
 
@@ -73,6 +69,7 @@ export default function AnmeldenPage() {
                     onChange={(e) => setEmail(e.target.value)}
                     className="pl-10"
                     required
+                    disabled={localLoading}
                   />
                 </div>
               </div>
@@ -94,12 +91,20 @@ export default function AnmeldenPage() {
                     onChange={(e) => setPasswort(e.target.value)}
                     className="pl-10"
                     required
+                    disabled={localLoading}
                   />
                 </div>
               </div>
 
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "Wird angemeldet..." : "Anmelden"}
+              <Button type="submit" className="w-full" disabled={localLoading}>
+                {localLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Wird angemeldet...
+                  </>
+                ) : (
+                  "Anmelden"
+                )}
               </Button>
             </form>
           </CardContent>
