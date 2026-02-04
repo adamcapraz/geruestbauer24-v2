@@ -1,0 +1,90 @@
+import Link from "next/link"
+import { Phone, Mail, Clock } from "lucide-react"
+
+export default function Footer() {
+  return (
+    <footer className="bg-slate-900 text-white py-12">
+      <div className="container mx-auto px-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div>
+            <h3 className="text-lg font-bold mb-4">
+              Gerüstbauer<span className="text-primary">24</span>
+            </h3>
+            <p className="text-slate-300 mb-4">
+              Finden Sie zuverlässige Gerüstbaufirmen in Ihrer Region. Geprüfte Unternehmen und echte Bewertungen.
+            </p>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-bold mb-4">Schnelllinks</h3>
+            <ul className="space-y-2">
+              <li>
+                <Link href="/geruestbau" className="text-slate-300 hover:text-primary transition-colors">
+                  Firmen finden
+                </Link>
+              </li>
+              <li>
+                <Link href="/ueber-uns" className="text-slate-300 hover:text-primary transition-colors">
+                  Über uns
+                </Link>
+              </li>
+              <li>
+                <Link href="/kontakt" className="text-slate-300 hover:text-primary transition-colors">
+                  Kontakt
+                </Link>
+              </li>
+              <li>
+                <Link href="/geruestbau/eintragen" className="text-slate-300 hover:text-primary transition-colors">
+                  Firma eintragen
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-bold mb-4">Rechtliches</h3>
+            <ul className="space-y-2">
+              <li>
+                <Link href="/impressum" className="text-slate-300 hover:text-primary transition-colors">
+                  Impressum
+                </Link>
+              </li>
+              <li>
+                <Link href="/datenschutz" className="text-slate-300 hover:text-primary transition-colors">
+                  Datenschutzerklärung
+                </Link>
+              </li>
+              <li>
+                <Link href="/agb" className="text-slate-300 hover:text-primary transition-colors">
+                  AGB
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-bold mb-4">Kontakt</h3>
+            <ul className="space-y-3">
+              <li className="flex items-center gap-2 text-slate-300">
+                <Phone size={18} className="text-primary" />
+                <span>+49 (0) 123 456 789</span>
+              </li>
+              <li className="flex items-center gap-2 text-slate-300">
+                <Mail size={18} className="text-primary" />
+                <span>info@geruestbauer24.eu</span>
+              </li>
+              <li className="flex items-center gap-2 text-slate-300">
+                <Clock size={18} className="text-primary" />
+                <span>Mo-Fr: 8:00 - 18:00 Uhr</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="border-t border-slate-700 mt-8 pt-6 text-center text-slate-400">
+          <p>&copy; {new Date().getFullYear()} Gerüstbauer24. Alle Rechte vorbehalten.</p>
+        </div>
+      </div>
+    </footer>
+  )
+}
