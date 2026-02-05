@@ -39,7 +39,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const supabase = createClient()
         const { data: { user: authUser } } = await supabase.auth.getUser()
         
-        if (authUser) {
+        if (authUser && authUser.email_confirmed_at) {
           setSupabaseUser(authUser)
           setUser({
             id: authUser.id,
@@ -61,7 +61,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Listen for auth changes
     const supabase = createClient()
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (session?.user) {
+      // Only set user on confirmed sign-in events, not on initial signup
+      if (event === "SIGNED_IN" && session?.user?.email_confirmed_at) {
         setSupabaseUser(session.user)
         setUser({
           id: session.user.id,
@@ -70,7 +71,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           phone: session.user.user_metadata?.phone || "",
           role: session.user.user_metadata?.role || "customer",
         })
-      } else {
+      } else if (event === "SIGNED_OUT") {
         setSupabaseUser(null)
         setUser(null)
       }
@@ -97,8 +98,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         router.push("/auth/anmelden")
       }
 
-      // Redirect from auth pages if already logged in
+      // Redirect from auth pages if already logged in (except bestaetigung page)
       if ((pathname === "/auth/anmelden" || pathname === "/auth/registrieren") && user) {
+        if (user.role === "owner") {
+          router.push("/firma/dashboard")
+        } else {
+          router.push("/dashboard")
+        }
+      }
+
+      // Redirect from bestaetigung if already confirmed
+      if (pathname === "/auth/bestaetigung" && user) {
         if (user.role === "owner") {
           router.push("/firma/dashboard")
         } else {
