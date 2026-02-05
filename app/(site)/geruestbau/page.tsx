@@ -9,8 +9,10 @@ import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Skeleton } from "@/components/ui/skeleton"
 import { SearchBar } from "@/components/search-bar"
-import { MapPin, Star, CheckCircle, Building2, Wrench, HardHat, Truck } from "lucide-react"
+import { MapPin, Star, CheckCircle, Building2, Wrench, HardHat, Truck, ChevronLeft, ChevronRight } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
+
+const ITEMS_PER_PAGE = 10
 
 type Firma = {
   id: string
@@ -41,6 +43,7 @@ function FirmenContent() {
   const [loading, setLoading] = useState(true)
   const [selectedLeistungen, setSelectedLeistungen] = useState<string[]>([])
   const [nurGeprueft, setNurGeprueft] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1)
   const searchParams = useSearchParams()
   const supabase = createClient()
 
@@ -97,6 +100,17 @@ function FirmenContent() {
     }
     return true
   })
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredFirmen.length / ITEMS_PER_PAGE)
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
+  const endIndex = startIndex + ITEMS_PER_PAGE
+  const paginatedFirmen = filteredFirmen.slice(startIndex, endIndex)
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [nurGeprueft, selectedLeistungen, stadt, bundesland])
 
   return (
     <div className="min-h-screen bg-background">
@@ -194,12 +208,12 @@ function FirmenContent() {
                 </Card>
               ) : (
                 <div className="grid md:grid-cols-2 gap-6">
-                  {filteredFirmen.map((firma) => {
+                  {paginatedFirmen.map((firma) => {
                     const bewertung = firma.google_bewertung || firma.bewertung
                     const anzahlBewertungen = firma.google_anzahl_bewertungen || firma.anzahl_bewertungen
-  const firmaUrl = firma.stadt_slug && firma.slug
-  ? `/geruestbau/${firma.stadt_slug}/${firma.slug}`
-  : `/geruestbau/${firma.id}`
+                    const firmaUrl = firma.stadt_slug && firma.slug
+                      ? `/geruestbau/${firma.stadt_slug}/${firma.slug}`
+                      : `/geruestbau/${firma.id}`
                     
                     return (
                       <Link key={firma.id} href={firmaUrl}>
@@ -258,6 +272,69 @@ function FirmenContent() {
           </div>
         </div>
       </section>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2 mt-8">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className="bg-transparent"
+          >
+            <ChevronLeft className="h-4 w-4 mr-1" />
+            Zurück
+          </Button>
+          
+          <div className="flex items-center gap-1">
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+              // Show first, last, current, and adjacent pages
+              const showPage = page === 1 || 
+                              page === totalPages || 
+                              Math.abs(page - currentPage) <= 1
+              
+              if (!showPage) {
+                // Show ellipsis only once between gaps
+                if (page === 2 && currentPage > 3) {
+                  return <span key={page} className="px-2 text-muted-foreground">...</span>
+                }
+                if (page === totalPages - 1 && currentPage < totalPages - 2) {
+                  return <span key={page} className="px-2 text-muted-foreground">...</span>
+                }
+                return null
+              }
+              
+              return (
+                <Button
+                  key={page}
+                  variant={currentPage === page ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setCurrentPage(page)}
+                  className={currentPage === page ? "" : "bg-transparent"}
+                >
+                  {page}
+                </Button>
+              )
+            })}
+          </div>
+          
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages}
+            className="bg-transparent"
+          >
+            Weiter
+            <ChevronRight className="h-4 w-4 ml-1" />
+          </Button>
+        </div>
+      )}
+      
+      <p className="text-center text-sm text-muted-foreground mt-4">
+        Seite {currentPage} von {totalPages} ({filteredFirmen.length} Firmen)
+      </p>
     </div>
   )
 }

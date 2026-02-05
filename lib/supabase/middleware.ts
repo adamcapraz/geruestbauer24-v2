@@ -29,31 +29,52 @@ export async function updateSession(request: NextRequest) {
     }
   )
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  // Refresh session - this handles token refresh and clears invalid sessions
+  let user = null
+  try {
+    const { data, error } = await supabase.auth.getUser()
+    if (!error) {
+      user = data.user
+    }
+  } catch {
+    // Session is invalid, user stays null
+  }
+
+  const pathname = request.nextUrl.pathname
 
   // Protect admin routes
-  if (request.nextUrl.pathname.startsWith("/admin") && !request.nextUrl.pathname.startsWith("/admin/login")) {
-    if (!user) {
-      const url = request.nextUrl.clone()
-      url.pathname = "/admin/login"
-      return NextResponse.redirect(url)
-    }
-
-    // Check if user is admin
-    const isAdmin = user.user_metadata?.is_admin === true
-    if (!isAdmin) {
+  if (pathname.startsWith("/admin") && !pathname.startsWith("/admin/login")) {
+    if (!user || user.user_metadata?.is_admin !== true) {
       const url = request.nextUrl.clone()
       url.pathname = "/admin/login"
       return NextResponse.redirect(url)
     }
   }
 
-  // Redirect logged in admins away from login page
-  if (request.nextUrl.pathname === "/admin/login" && user?.user_metadata?.is_admin) {
+  // Redirect logged-in admins away from login page
+  if (pathname === "/admin/login" && user?.user_metadata?.is_admin) {
     const url = request.nextUrl.clone()
     url.pathname = "/admin"
+    return NextResponse.redirect(url)
+  }
+
+  // Protect user dashboard routes
+  if (pathname.startsWith("/dashboard") || pathname.startsWith("/firma/dashboard")) {
+    if (!user) {
+      const url = request.nextUrl.clone()
+      url.pathname = "/auth/anmelden"
+      return NextResponse.redirect(url)
+    }
+  }
+
+  // Redirect logged-in users away from auth pages (but not admin login)
+  if (user && (pathname === "/auth/anmelden" || pathname === "/auth/registrieren")) {
+    const url = request.nextUrl.clone()
+    if (user.user_metadata?.role === "owner") {
+      url.pathname = "/firma/dashboard"
+    } else {
+      url.pathname = "/dashboard"
+    }
     return NextResponse.redirect(url)
   }
 

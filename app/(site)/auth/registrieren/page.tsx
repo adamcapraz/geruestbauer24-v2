@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { useAuth } from "@/hooks/use-auth"
 import { useToast } from "@/hooks/use-toast"
-import { Mail, Lock, User, Phone, ArrowLeft, Building2 } from "lucide-react"
+import { Mail, Lock, User, Phone, ArrowLeft, Building2, Loader2 } from "lucide-react"
 
 export default function RegistrierenPage() {
   const [name, setName] = useState("")
@@ -19,9 +19,10 @@ export default function RegistrierenPage() {
   const [telefon, setTelefon] = useState("")
   const [passwort, setPasswort] = useState("")
   const [passwortBestaetigen, setPasswortBestaetigen] = useState("")
-  const [kontotyp, setKontotyp] = useState<"kunde" | "firma">("kunde")
+  const [kontotyp, setKontotyp] = useState<"customer" | "owner">("customer")
   const [agbAkzeptiert, setAgbAkzeptiert] = useState(false)
-  const { signUp, isLoading } = useAuth()
+  const [localLoading, setLocalLoading] = useState(false)
+  const { signUp } = useAuth()
   const { toast } = useToast()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -63,27 +64,21 @@ export default function RegistrierenPage() {
       return
     }
 
+    setLocalLoading(true)
     try {
       await signUp(
         {
           name,
           email,
           phone: telefon,
-          role: kontotyp === "firma" ? "owner" : "customer",
-          otpMethod: "email",
+          role: kontotyp,
         },
         passwort
       )
-      toast({
-        title: "Registrierung erfolgreich",
-        description: "Ihr Konto wurde erstellt. Sie können sich jetzt anmelden.",
-      })
-    } catch (error) {
-      toast({
-        title: "Registrierung fehlgeschlagen",
-        description: "Bitte versuchen Sie es erneut.",
-        variant: "destructive",
-      })
+    } catch {
+      // Error already handled in signUp
+    } finally {
+      setLocalLoading(false)
     }
   }
 
@@ -108,11 +103,11 @@ export default function RegistrierenPage() {
                 <Label>Kontotyp</Label>
                 <RadioGroup
                   value={kontotyp}
-                  onValueChange={(value: "kunde" | "firma") => setKontotyp(value)}
+                  onValueChange={(value: "customer" | "owner") => setKontotyp(value)}
                   className="grid grid-cols-2 gap-4"
                 >
                   <div>
-                    <RadioGroupItem value="kunde" id="kunde" className="peer sr-only" />
+                    <RadioGroupItem value="customer" id="kunde" className="peer sr-only" />
                     <Label
                       htmlFor="kunde"
                       className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
@@ -122,7 +117,7 @@ export default function RegistrierenPage() {
                     </Label>
                   </div>
                   <div>
-                    <RadioGroupItem value="firma" id="firma" className="peer sr-only" />
+                    <RadioGroupItem value="owner" id="firma" className="peer sr-only" />
                     <Label
                       htmlFor="firma"
                       className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
@@ -135,17 +130,18 @@ export default function RegistrierenPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="name">{kontotyp === "firma" ? "Firmenname" : "Vollständiger Name"} *</Label>
+                <Label htmlFor="name">{kontotyp === "owner" ? "Firmenname" : "Vollständiger Name"} *</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="name"
                     type="text"
-                    placeholder={kontotyp === "firma" ? "Musterfirma GmbH" : "Max Mustermann"}
+                    placeholder={kontotyp === "owner" ? "Musterfirma GmbH" : "Max Mustermann"}
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     className="pl-10"
                     required
+                    disabled={localLoading}
                   />
                 </div>
               </div>
@@ -162,6 +158,7 @@ export default function RegistrierenPage() {
                     onChange={(e) => setEmail(e.target.value)}
                     className="pl-10"
                     required
+                    disabled={localLoading}
                   />
                 </div>
               </div>
@@ -177,6 +174,7 @@ export default function RegistrierenPage() {
                     value={telefon}
                     onChange={(e) => setTelefon(e.target.value)}
                     className="pl-10"
+                    disabled={localLoading}
                   />
                 </div>
               </div>
@@ -193,6 +191,7 @@ export default function RegistrierenPage() {
                     onChange={(e) => setPasswort(e.target.value)}
                     className="pl-10"
                     required
+                    disabled={localLoading}
                   />
                 </div>
               </div>
@@ -209,6 +208,7 @@ export default function RegistrierenPage() {
                     onChange={(e) => setPasswortBestaetigen(e.target.value)}
                     className="pl-10"
                     required
+                    disabled={localLoading}
                   />
                 </div>
               </div>
@@ -218,6 +218,7 @@ export default function RegistrierenPage() {
                   id="agb"
                   checked={agbAkzeptiert}
                   onCheckedChange={(checked) => setAgbAkzeptiert(checked as boolean)}
+                  disabled={localLoading}
                 />
                 <Label htmlFor="agb" className="text-sm text-muted-foreground leading-tight cursor-pointer">
                   Ich akzeptiere die{" "}
@@ -226,8 +227,15 @@ export default function RegistrierenPage() {
                 </Label>
               </div>
 
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "Wird registriert..." : "Konto erstellen"}
+              <Button type="submit" className="w-full" disabled={localLoading}>
+                {localLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Wird registriert...
+                  </>
+                ) : (
+                  "Konto erstellen"
+                )}
               </Button>
             </form>
           </CardContent>
