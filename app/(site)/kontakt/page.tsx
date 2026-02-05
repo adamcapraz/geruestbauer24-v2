@@ -158,7 +158,7 @@ export default function KontaktPage() {
                   </div>
                   <div>
                     <h3 className="font-medium text-foreground">Telefon</h3>
-                    <p className="text-muted-foreground">+49 (0) 123 456 789</p>
+                    <p className="text-muted-foreground">+49 1639540595</p>
                   </div>
                 </div>
 
@@ -169,7 +169,6 @@ export default function KontaktPage() {
                   <div>
                     <h3 className="font-medium text-foreground">E-Mail</h3>
                     <p className="text-muted-foreground">info@geruestbauer24.eu</p>
-                    <p className="text-muted-foreground">support@geruestbauer24.eu</p>
                   </div>
                 </div>
 
