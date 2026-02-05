@@ -85,7 +85,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Protect routes that require authentication
   useEffect(() => {
     if (!isLoading) {
-      const protectedPaths = ["/dashboard", "/firma/dashboard", "/profil"]
+      const protectedPaths = ["/dashboard", "/profil"]
 
       const isProtectedPath = protectedPaths.some((path) => pathname?.startsWith(path))
 
@@ -100,20 +100,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       // Redirect from auth pages if already logged in (except bestaetigung page)
       if ((pathname === "/auth/anmelden" || pathname === "/auth/registrieren") && user) {
-        if (user.role === "owner") {
-          router.push("/firma/dashboard")
-        } else {
-          router.push("/dashboard")
-        }
+        router.push("/dashboard")
       }
 
       // Redirect from bestaetigung if already confirmed
       if (pathname === "/auth/bestaetigung" && user) {
-        if (user.role === "owner") {
-          router.push("/firma/dashboard")
-        } else {
-          router.push("/dashboard")
-        }
+        router.push("/dashboard")
       }
     }
   }, [pathname, user, isLoading, router, toast])
@@ -135,12 +127,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           description: "Sie haben sich erfolgreich angemeldet.",
         })
 
-        const role = data.user.user_metadata?.role || "customer"
-        if (role === "owner") {
-          router.push("/firma/dashboard")
-        } else {
-          router.push("/dashboard")
-        }
+        router.push("/dashboard")
       }
     } catch (error: unknown) {
       console.error("Sign in failed:", error)
