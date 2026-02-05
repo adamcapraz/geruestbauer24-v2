@@ -5,6 +5,7 @@ export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get("code")
   const next = searchParams.get("next") ?? "/"
+  const type = searchParams.get("type")
 
   if (code) {
     const supabase = await createClient()
@@ -13,14 +14,16 @@ export async function GET(request: Request) {
     if (!error) {
       const { data: { user } } = await supabase.auth.getUser()
       
-      // Redirect based on user role
-      if (user?.user_metadata?.role === "owner") {
-        return NextResponse.redirect(`${origin}/firma/dashboard`)
+      if (user) {
+        // Redirect based on user role
+        if (user.user_metadata?.role === "owner") {
+          return NextResponse.redirect(`${origin}/firma/dashboard`)
+        }
+        return NextResponse.redirect(`${origin}/dashboard`)
       }
-      return NextResponse.redirect(`${origin}/dashboard`)
     }
   }
 
-  // Return to error page if something went wrong
+  // If there's no code or exchange failed, redirect to error page
   return NextResponse.redirect(`${origin}/auth/fehler`)
 }
