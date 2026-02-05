@@ -252,7 +252,7 @@ export default function KontaktPage() {
                       Tragen Sie Ihr Unternehmen kostenlos ein und erreichen Sie neue Kunden.
                     </p>
                     <Button asChild>
-                      <a href="/geruestbau/eintragen">Firma eintragen</a>
+                      <a href="/auth/registrieren">Firma eintragen</a>
                     </Button>
                   </div>
                 </div>
