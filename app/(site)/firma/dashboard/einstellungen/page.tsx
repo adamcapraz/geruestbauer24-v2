@@ -8,37 +8,25 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { User, Lock, Trash2, CheckCircle, AlertCircle, Loader2 } from "lucide-react"
+import { User, Lock, Trash2, CheckCircle, AlertCircle, Loader2, HardHat } from "lucide-react"
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
+  Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog"
 
-export default function EinstellungenPage() {
+export default function FirmaEinstellungenPage() {
   const router = useRouter()
   const supabase = createClient()
 
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
-
-  // Profile form
   const [name, setName] = useState("")
   const [phone, setPhone] = useState("")
   const [profileSaving, setProfileSaving] = useState(false)
   const [profileMessage, setProfileMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
-
-  // Password form
-  const [currentPassword, setCurrentPassword] = useState("")
   const [newPassword, setNewPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [passwordSaving, setPasswordSaving] = useState(false)
   const [passwordMessage, setPasswordMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
-
-  // Delete account
   const [deleteConfirm, setDeleteConfirm] = useState("")
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [deleting, setDeleting] = useState(false)
@@ -59,11 +47,7 @@ export default function EinstellungenPage() {
   const saveProfile = async () => {
     setProfileSaving(true)
     setProfileMessage(null)
-
-    const { error } = await supabase.auth.updateUser({
-      data: { name, phone }
-    })
-
+    const { error } = await supabase.auth.updateUser({ data: { name, phone } })
     if (error) {
       setProfileMessage({ type: "error", text: "Fehler beim Speichern: " + error.message })
     } else {
@@ -75,28 +59,13 @@ export default function EinstellungenPage() {
   const changePassword = async () => {
     setPasswordSaving(true)
     setPasswordMessage(null)
-
-    if (newPassword.length < 8) {
-      setPasswordMessage({ type: "error", text: "Das Passwort muss mindestens 8 Zeichen lang sein." })
-      setPasswordSaving(false)
-      return
-    }
-
-    if (newPassword !== confirmPassword) {
-      setPasswordMessage({ type: "error", text: "Die Passwörter stimmen nicht überein." })
-      setPasswordSaving(false)
-      return
-    }
-
-    const { error } = await supabase.auth.updateUser({
-      password: newPassword
-    })
-
+    if (newPassword.length < 8) { setPasswordMessage({ type: "error", text: "Das Passwort muss mindestens 8 Zeichen lang sein." }); setPasswordSaving(false); return }
+    if (newPassword !== confirmPassword) { setPasswordMessage({ type: "error", text: "Die Passwörter stimmen nicht überein." }); setPasswordSaving(false); return }
+    const { error } = await supabase.auth.updateUser({ password: newPassword })
     if (error) {
       setPasswordMessage({ type: "error", text: "Fehler: " + error.message })
     } else {
       setPasswordMessage({ type: "success", text: "Passwort erfolgreich geändert." })
-      setCurrentPassword("")
       setNewPassword("")
       setConfirmPassword("")
     }
@@ -106,8 +75,6 @@ export default function EinstellungenPage() {
   const deleteAccount = async () => {
     if (deleteConfirm !== "LÖSCHEN") return
     setDeleting(true)
-
-    // Sign out and mark for deletion
     await supabase.auth.signOut()
     router.push("/")
   }
@@ -118,16 +85,13 @@ export default function EinstellungenPage() {
     <div className="space-y-6 max-w-2xl">
       <div>
         <h1 className="text-2xl font-bold text-foreground">Einstellungen</h1>
-        <p className="text-muted-foreground mt-1">Verwalten Sie Ihr Konto und Ihre Einstellungen</p>
+        <p className="text-muted-foreground mt-1">Verwalten Sie Ihr Firmenkonto</p>
       </div>
 
-      {/* Profile Settings */}
       <Card>
         <CardHeader>
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-primary/10 rounded-lg">
-              <User className="h-5 w-5 text-primary" />
-            </div>
+            <div className="p-2 bg-primary/10 rounded-lg"><User className="h-5 w-5 text-primary" /></div>
             <div>
               <CardTitle>Persönliche Daten</CardTitle>
               <CardDescription>Aktualisieren Sie Ihren Namen und Kontaktdaten</CardDescription>
@@ -137,47 +101,32 @@ export default function EinstellungenPage() {
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="email">E-Mail-Adresse</Label>
-            <Input
-              id="email"
-              value={user?.email || ""}
-              disabled
-              className="bg-muted"
-            />
+            <Input id="email" value={user?.email || ""} disabled className="bg-muted" />
             <p className="text-xs text-muted-foreground">Die E-Mail-Adresse kann nicht geändert werden.</p>
           </div>
-
+          <div className="space-y-2">
+            <Label>Kontotyp</Label>
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full font-medium bg-amber-500/10 text-amber-600 border border-amber-500/20">
+                <HardHat className="h-3 w-3" />
+                Firmenkonto
+              </span>
+            </div>
+          </div>
           <div className="space-y-2">
             <Label htmlFor="name">Name / Firmenname</Label>
-            <Input
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Ihr Name oder Firmenname"
-            />
+            <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ihr Name oder Firmenname" />
           </div>
-
           <div className="space-y-2">
             <Label htmlFor="phone">Telefonnummer</Label>
-            <Input
-              id="phone"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="+49 123 456789"
-              type="tel"
-            />
+            <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+49 123 456789" type="tel" />
           </div>
-
           {profileMessage && (
             <Alert variant={profileMessage.type === "error" ? "destructive" : "default"}>
-              {profileMessage.type === "success" ? (
-                <CheckCircle className="h-4 w-4" />
-              ) : (
-                <AlertCircle className="h-4 w-4" />
-              )}
+              {profileMessage.type === "success" ? <CheckCircle className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}
               <AlertDescription>{profileMessage.text}</AlertDescription>
             </Alert>
           )}
-
           <Button onClick={saveProfile} disabled={profileSaving}>
             {profileSaving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
             Speichern
@@ -185,13 +134,10 @@ export default function EinstellungenPage() {
         </CardContent>
       </Card>
 
-      {/* Password Settings */}
       <Card>
         <CardHeader>
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-amber-500/10 rounded-lg">
-              <Lock className="h-5 w-5 text-amber-500" />
-            </div>
+            <div className="p-2 bg-amber-500/10 rounded-lg"><Lock className="h-5 w-5 text-amber-500" /></div>
             <div>
               <CardTitle>Passwort ändern</CardTitle>
               <CardDescription>Aktualisieren Sie Ihr Anmeldepasswort</CardDescription>
@@ -201,37 +147,18 @@ export default function EinstellungenPage() {
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="new-password">Neues Passwort</Label>
-            <Input
-              id="new-password"
-              type="password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              placeholder="Mindestens 8 Zeichen"
-            />
+            <Input id="new-password" type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="Mindestens 8 Zeichen" />
           </div>
-
           <div className="space-y-2">
             <Label htmlFor="confirm-password">Passwort bestätigen</Label>
-            <Input
-              id="confirm-password"
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="Passwort wiederholen"
-            />
+            <Input id="confirm-password" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="Passwort wiederholen" />
           </div>
-
           {passwordMessage && (
             <Alert variant={passwordMessage.type === "error" ? "destructive" : "default"}>
-              {passwordMessage.type === "success" ? (
-                <CheckCircle className="h-4 w-4" />
-              ) : (
-                <AlertCircle className="h-4 w-4" />
-              )}
+              {passwordMessage.type === "success" ? <CheckCircle className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}
               <AlertDescription>{passwordMessage.text}</AlertDescription>
             </Alert>
           )}
-
           <Button onClick={changePassword} disabled={passwordSaving || !newPassword || !confirmPassword}>
             {passwordSaving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
             Passwort ändern
@@ -239,18 +166,13 @@ export default function EinstellungenPage() {
         </CardContent>
       </Card>
 
-      {/* Danger Zone */}
       <Card className="border-red-200">
         <CardHeader>
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-red-500/10 rounded-lg">
-              <Trash2 className="h-5 w-5 text-red-500" />
-            </div>
+            <div className="p-2 bg-red-500/10 rounded-lg"><Trash2 className="h-5 w-5 text-red-500" /></div>
             <div>
               <CardTitle className="text-red-600">Konto löschen</CardTitle>
-              <CardDescription>
-                Diese Aktion kann nicht rückgängig gemacht werden. Alle Ihre Daten werden dauerhaft gelöscht.
-              </CardDescription>
+              <CardDescription>Diese Aktion kann nicht rückgängig gemacht werden.</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -258,37 +180,22 @@ export default function EinstellungenPage() {
           <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
             <DialogTrigger asChild>
               <Button variant="outline" className="border-red-300 text-red-600 hover:bg-red-50 bg-transparent">
-                <Trash2 className="h-4 w-4 mr-2" />
-                Konto löschen
+                <Trash2 className="h-4 w-4 mr-2" />Konto löschen
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
                 <DialogTitle className="text-red-600">Konto wirklich löschen?</DialogTitle>
-                <DialogDescription>
-                  Diese Aktion kann nicht rückgängig gemacht werden. Alle Ihre Firmen, Anfragen und persönlichen Daten werden dauerhaft gelöscht.
-                </DialogDescription>
+                <DialogDescription>Alle Ihre Firmen, Anfragen und persönlichen Daten werden dauerhaft gelöscht.</DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label>
-                    {"Geben Sie LÖSCHEN ein, um zu bestätigen"}
-                  </Label>
-                  <Input
-                    value={deleteConfirm}
-                    onChange={(e) => setDeleteConfirm(e.target.value)}
-                    placeholder="LÖSCHEN"
-                  />
+                  <Label>{"Geben Sie LÖSCHEN ein, um zu bestätigen"}</Label>
+                  <Input value={deleteConfirm} onChange={(e) => setDeleteConfirm(e.target.value)} placeholder="LÖSCHEN" />
                 </div>
                 <div className="flex justify-end gap-2">
-                  <Button variant="outline" className="bg-transparent" onClick={() => setDeleteDialogOpen(false)}>
-                    Abbrechen
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    disabled={deleteConfirm !== "LÖSCHEN" || deleting}
-                    onClick={deleteAccount}
-                  >
+                  <Button variant="outline" className="bg-transparent" onClick={() => setDeleteDialogOpen(false)}>Abbrechen</Button>
+                  <Button variant="destructive" disabled={deleteConfirm !== "LÖSCHEN" || deleting} onClick={deleteAccount}>
                     {deleting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                     Konto endgültig löschen
                   </Button>
