@@ -82,33 +82,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  // Protect routes that require authentication
-  useEffect(() => {
-    if (!isLoading) {
-      const protectedPaths = ["/dashboard", "/profil"]
-
-      const isProtectedPath = protectedPaths.some((path) => pathname?.startsWith(path))
-
-      if (isProtectedPath && !user) {
-        toast({
-          title: "Anmeldung erforderlich",
-          description: "Bitte melden Sie sich an, um auf diese Seite zuzugreifen.",
-          variant: "destructive",
-        })
-        router.push("/auth/anmelden")
-      }
-
-      // Redirect from auth pages if already logged in (except bestaetigung page)
-      if ((pathname === "/auth/anmelden" || pathname === "/auth/registrieren") && user) {
-        router.push("/dashboard")
-      }
-
-      // Redirect from bestaetigung if already confirmed
-      if (pathname === "/auth/bestaetigung" && user) {
-        router.push("/dashboard")
-      }
-    }
-  }, [pathname, user, isLoading, router, toast])
+  const getDashboardPath = (role?: string) => {
+    return role === "owner" ? "/firma/dashboard" : "/kunde/dashboard"
+  }
 
   const signIn = async (email: string, password: string) => {
     setIsLoading(true)
@@ -127,7 +103,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           description: "Sie haben sich erfolgreich angemeldet.",
         })
 
-        router.push("/dashboard")
+        const role = data.user.user_metadata?.role
+        router.push(getDashboardPath(role))
       }
     } catch (error: unknown) {
       console.error("Sign in failed:", error)

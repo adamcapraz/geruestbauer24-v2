@@ -57,8 +57,8 @@ export default function DatenschutzPage() {
                 <p>Musterstraße 123</p>
                 <p>10115 Berlin</p>
                 <p>Deutschland</p>
-                <p className="mt-2">Telefon: +49 (0) 123 456 789</p>
-                <p>E-Mail: datenschutz@geruestbauer24.eu</p>
+                <p className="mt-2">Telefon: +49 1639540595</p>
+                <p>E-Mail: info@geruestbauer24.eu</p>
               </div>
             </CardContent>
           </Card>

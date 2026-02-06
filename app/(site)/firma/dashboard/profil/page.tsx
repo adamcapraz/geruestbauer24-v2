@@ -36,7 +36,7 @@ type Firma = {
   google_adresse: string | null
 }
 
-export default function MeineFirmaPage() {
+export default function FirmaProfilPage() {
   const [firmen, setFirmen] = useState<Firma[]>([])
   const [loading, setLoading] = useState(true)
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -116,10 +116,10 @@ export default function MeineFirmaPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Meine Firma</h1>
+          <h1 className="text-2xl font-bold text-foreground">Mein Profil</h1>
           <p className="text-muted-foreground mt-1">Verwalten Sie Ihre Firmenprofile</p>
         </div>
-        <Link href="/dashboard/firma/erstellen">
+        <Link href="/firma/dashboard/erstellen">
           <Button>
             <Plus className="h-4 w-4 mr-2" />
             Neue Firma
@@ -142,7 +142,7 @@ export default function MeineFirmaPage() {
             <p className="text-muted-foreground mb-4">
               Tragen Sie Ihre Firma ein, um auf Gerüstbauer24 gefunden zu werden.
             </p>
-            <Link href="/dashboard/firma/erstellen">
+            <Link href="/firma/dashboard/erstellen">
               <Button>
                 <Plus className="h-4 w-4 mr-2" />
                 Firma eintragen
@@ -201,7 +201,6 @@ export default function MeineFirmaPage() {
               </CardHeader>
               <CardContent>
                 {editingId === firma.id ? (
-                  /* Edit Form */
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label>Firmenname</Label>
@@ -274,7 +273,6 @@ export default function MeineFirmaPage() {
                     </div>
                   </div>
                 ) : (
-                  /* View Mode */
                   <div className="space-y-4">
                     {firma.beschreibung && (
                       <p className="text-sm text-muted-foreground">{firma.beschreibung}</p>

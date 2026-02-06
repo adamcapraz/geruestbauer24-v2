@@ -59,25 +59,25 @@ export default function Header() {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem asChild>
-                      <Link href="/dashboard" className="cursor-pointer w-full">
+                      <Link href={user.role === "owner" ? "/firma/dashboard" : "/kunde/dashboard"} className="cursor-pointer w-full">
                         Dashboard
                       </Link>
                     </DropdownMenuItem>
                     {user.role === "owner" && (
                       <DropdownMenuItem asChild>
-                        <Link href="/geruestbau/eintragen" className="cursor-pointer w-full">
+                        <Link href="/firma/dashboard/erstellen" className="cursor-pointer w-full">
                           Firma eintragen
                         </Link>
                       </DropdownMenuItem>
                     )}
                     <DropdownMenuItem asChild>
-                      <Link href="/anfragen" className="cursor-pointer w-full">
+                      <Link href={user.role === "owner" ? "/firma/dashboard/anfragen" : "/kunde/dashboard/anfragen"} className="cursor-pointer w-full">
                         Meine Anfragen
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link href="/profil" className="cursor-pointer w-full">
-                        Profil
+                      <Link href={user.role === "owner" ? "/firma/dashboard/einstellungen" : "/kunde/dashboard/einstellungen"} className="cursor-pointer w-full">
+                        Einstellungen
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={signOut} className="cursor-pointer">
@@ -131,21 +131,21 @@ export default function Header() {
                 <>
                   {user ? (
                     <>
-                      <Link href="/dashboard" className="flex items-center gap-2 py-2">
+                      <Link href={user.role === "owner" ? "/firma/dashboard" : "/kunde/dashboard"} className="flex items-center gap-2 py-2">
                         Dashboard
                       </Link>
                       {user.role === "owner" && (
-                        <Link href="/geruestbau/eintragen" className="flex items-center gap-2 py-2">
+                        <Link href="/firma/dashboard/erstellen" className="flex items-center gap-2 py-2">
                           <Building2 size={18} />
                           Firma eintragen
                         </Link>
                       )}
-                      <Link href="/anfragen" className="flex items-center gap-2 py-2">
+                      <Link href={user.role === "owner" ? "/firma/dashboard/anfragen" : "/kunde/dashboard/anfragen"} className="flex items-center gap-2 py-2">
                         Meine Anfragen
                       </Link>
-                      <Link href="/profil" className="flex items-center gap-2 py-2">
+                      <Link href={user.role === "owner" ? "/firma/dashboard/einstellungen" : "/kunde/dashboard/einstellungen"} className="flex items-center gap-2 py-2">
                         <User size={18} />
-                        Profil
+                        Einstellungen
                       </Link>
                       <Button variant="outline" className="flex items-center gap-2 mt-4 bg-transparent" onClick={signOut}>
                         <LogOut size={18} />

@@ -59,7 +59,7 @@ export async function updateSession(request: NextRequest) {
   }
 
   // Protect user dashboard routes
-  if (pathname.startsWith("/dashboard") || pathname.startsWith("/firma/dashboard")) {
+  if (pathname.startsWith("/dashboard") || pathname.startsWith("/firma/dashboard") || pathname.startsWith("/kunde/dashboard")) {
     if (!user) {
       const url = request.nextUrl.clone()
       url.pathname = "/auth/anmelden"
@@ -67,14 +67,17 @@ export async function updateSession(request: NextRequest) {
     }
   }
 
+  // Redirect /dashboard to role-based dashboard
+  if (pathname === "/dashboard" && user) {
+    const url = request.nextUrl.clone()
+    url.pathname = user.user_metadata?.role === "owner" ? "/firma/dashboard" : "/kunde/dashboard"
+    return NextResponse.redirect(url)
+  }
+
   // Redirect logged-in users away from auth pages (but not admin login)
   if (user && (pathname === "/auth/anmelden" || pathname === "/auth/registrieren")) {
     const url = request.nextUrl.clone()
-    if (user.user_metadata?.role === "owner") {
-      url.pathname = "/firma/dashboard"
-    } else {
-      url.pathname = "/dashboard"
-    }
+    url.pathname = user.user_metadata?.role === "owner" ? "/firma/dashboard" : "/kunde/dashboard"
     return NextResponse.redirect(url)
   }
 
