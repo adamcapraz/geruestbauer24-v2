@@ -39,6 +39,7 @@ import {
   RefreshCw,
 } from "lucide-react"
 import type { User } from "@supabase/supabase-js"
+import AdminEinstellungen from "@/components/admin-einstellungen"
 
 interface Firma {
   id: string
@@ -1546,15 +1547,7 @@ export default function AdminDashboard() {
 
           {/* Einstellungen Tab */}
           <TabsContent value="einstellungen">
-            <Card>
-              <CardHeader>
-                <CardTitle>Einstellungen</CardTitle>
-                <CardDescription>Allgemeine Plattform-Einstellungen</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">Einstellungen werden in einer zukünftigen Version verfügbar sein.</p>
-              </CardContent>
-            </Card>
+            <AdminEinstellungen />
           </TabsContent>
         </Tabs>
       </div>
