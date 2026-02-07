@@ -35,7 +35,7 @@ export default function ImpressumPage() {
                 <p><span className="font-medium text-foreground">Registergericht:</span> Amtsgericht Charlottenburg</p>
               </div>
               <div>
-                <p><span className="font-medium text-foreground">Umsatzsteuer-ID:</span> DE123456789</p>
+                <p><span className="font-medium text-foreground">Umsatzsteuer-ID:</span> DE321654789</p>
               </div>
             </CardContent>
           </Card>
@@ -54,7 +54,7 @@ export default function ImpressumPage() {
               <CardTitle>Kontakt</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2 text-muted-foreground">
-              <p><span className="font-medium text-foreground">Telefon:</span> +49 (0) 123 456 789</p>
+              <p><span className="font-medium text-foreground">Telefon:</span> +49 1639540595</p>
               <p><span className="font-medium text-foreground">E-Mail:</span> info@geruestbauer24.eu</p>
             </CardContent>
           </Card>
