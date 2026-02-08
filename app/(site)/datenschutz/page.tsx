@@ -31,10 +31,10 @@ export default function DatenschutzPage() {
               
               <h3 className="font-semibold text-foreground mt-4">2. Datenerfassung auf unserer Website</h3>
               <p>
-                <strong>Kontaktformular: Wenn Sie uns per Kontaktformular (geruestbauer24.eu/kontakt) Anfragen zukommen lassen, werden Ihre Angaben zwecks Bearbeitung der Anfrage bei uns gespeichert.
+                <strong>Kontaktformular: Wenn Sie uns per Kontaktformular (geruestbauer24.eu/kontakt) Anfragen zukommen lassen, werden Ihre Angaben zwecks Bearbeitung der Anfrage bei uns gespeichert.</strong>
               </p>
               <p>
-                <strong>Google Analytics: Diese Website nutzt Funktionen des Webanalysedienstes Google Analytics. Anbieter ist die Google Ireland Limited. Google Analytics verwendet sog. „Cookies“, um die Nutzung der Website zu analysieren.
+                <strong>Google Analytics: Diese Website nutzt Funktionen des Webanalysedienstes Google Analytics. Anbieter ist die Google Ireland Limited. Google Analytics verwendet sog. „Cookies“, um die Nutzung der Website zu analysieren.</strong>
               </p>
               <p>Google Places API: Zur Bereitstellung unserer Branchenverzeichnisse nutzen wir die Google Places API. Hierbei werden öffentlich zugängliche Firmendaten angezeigt.
               </p>
