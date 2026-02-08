@@ -21,45 +21,37 @@ export default function DatenschutzPage() {
         <div className="max-w-3xl mx-auto space-y-8">
           <Card className="border-border">
             <CardHeader>
-              <CardTitle>1. Datenschutz auf einen Blick</CardTitle>
+              <CardTitle>Datenschutzerklärung</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4 text-muted-foreground">
-              <h3 className="font-semibold text-foreground">Allgemeine Hinweise</h3>
+              <h3 className="font-semibold text-foreground">1. Datenschutz auf einen Blick</h3>
               <p>
-                Die folgenden Hinweise geben einen einfachen Überblick darüber, was mit Ihren 
-                personenbezogenen Daten passiert, wenn Sie diese Website besuchen. Personenbezogene 
-                Daten sind alle Daten, mit denen Sie persönlich identifiziert werden können.
+                Wir nehmen den Schutz Ihrer persönlichen Daten sehr ernst. Personenbezogene Daten werden auf dieser Website nur im technisch notwendigen Umfang erhoben (z.B. über das Kontaktformular oder Google Analytics).
               </p>
               
-              <h3 className="font-semibold text-foreground mt-4">Datenerfassung auf dieser Website</h3>
+              <h3 className="font-semibold text-foreground mt-4">2. Datenerfassung auf unserer Website</h3>
               <p>
-                <strong>Wer ist verantwortlich für die Datenerfassung auf dieser Website?</strong><br />
-                Die Datenverarbeitung auf dieser Website erfolgt durch den Websitebetreiber. Dessen 
-                Kontaktdaten können Sie dem Impressum dieser Website entnehmen.
+                <strong>Kontaktformular: Wenn Sie uns per Kontaktformular (geruestbauer24.eu/kontakt) Anfragen zukommen lassen, werden Ihre Angaben zwecks Bearbeitung der Anfrage bei uns gespeichert.</strong>
               </p>
               <p>
-                <strong>Wie erfassen wir Ihre Daten?</strong><br />
-                Ihre Daten werden zum einen dadurch erhoben, dass Sie uns diese mitteilen. Hierbei 
-                kann es sich z.B. um Daten handeln, die Sie in ein Kontaktformular eingeben. Andere 
-                Daten werden automatisch beim Besuch der Website durch unsere IT-Systeme erfasst.
+                <strong>Google Analytics: Diese Website nutzt Funktionen des Webanalysedienstes Google Analytics. Anbieter ist die Google Ireland Limited. Google Analytics verwendet sog. „Cookies“, um die Nutzung der Website zu analysieren.</strong>
+              </p>
+              <p>Google Places API: Zur Bereitstellung unserer Branchenverzeichnisse nutzen wir die Google Places API. Hierbei werden öffentlich zugängliche Firmendaten angezeigt.
               </p>
             </CardContent>
           </Card>
 
           <Card className="border-border">
             <CardHeader>
-              <CardTitle>2. Verantwortlicher</CardTitle>
+              <CardTitle>3. Registrierung durch Firmen</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4 text-muted-foreground">
-              <p>Verantwortlich für die Datenverarbeitung auf dieser Website ist:</p>
-              <div>
-                <p className="font-semibold text-foreground">Gerüstbauer24 GmbH</p>
-                <p>Musterstraße 123</p>
-                <p>10115 Berlin</p>
-                <p>Deutschland</p>
-                <p className="mt-2">Telefon: +49 1639540595</p>
-                <p>E-Mail: info@geruestbauer24.eu</p>
-              </div>
+              <p>VUnternehmen haben die Möglichkeit, sich selbst in unser Verzeichnis einzutragen. Die dabei eingegebenen Daten werden zum Zwecke der Veröffentlichung im Verzeichnis verarbeitet.
+              </p>
+              <p>4. Ihre Rechte</p>
+              <p>
+                Sie haben jederzeit das Recht, unentgeltlich Auskunft über Herkunft, Empfänger und Zweck Ihrer gespeicherten personenbezogenen Daten zu erhalten. Sie haben außerdem ein Recht auf Berichtigung oder Löschung dieser Daten.
+                </p>
             </CardContent>
           </Card>
 

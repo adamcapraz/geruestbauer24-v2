@@ -109,7 +109,7 @@ export default function Home() {
             Tragen Sie Ihr Unternehmen kostenlos ein und erreichen Sie neue Kunden in Ihrer Region.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/geruestbau/eintragen">
+            <Link href="/auth/registrieren">
               <Button size="lg" variant="secondary" className="w-full sm:w-auto">
                 Firma kostenlos eintragen
               </Button>
@@ -128,11 +128,11 @@ export default function Home() {
         <div className="container mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             <div>
-              <p className="text-4xl font-bold text-primary">500+</p>
+              <p className="text-4xl font-bold text-primary">4.627+</p>
               <p className="text-muted-foreground mt-2">Geprüfte Firmen</p>
             </div>
             <div>
-              <p className="text-4xl font-bold text-primary">10.000+</p>
+              <p className="text-4xl font-bold text-primary">283+</p>
               <p className="text-muted-foreground mt-2">Anfragen vermittelt</p>
             </div>
             <div>
