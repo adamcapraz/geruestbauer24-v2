@@ -208,14 +208,19 @@ export default function AdminDashboard() {
     }
     
     try {
-      const { data: { user } } = await supabase.auth.getUser()
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
       
-      if (!user || user.user_metadata?.is_admin !== true) {
+      if (sessionError || !session?.user) {
+        router.push("/admin/login")
+        return
+      }
+
+      if (session.user.user_metadata?.is_admin !== true) {
         router.push("/admin/login")
         return
       }
       
-      setUser(user)
+      setUser(session.user)
       setLoading(false)
     } catch {
       router.push("/admin/login")
