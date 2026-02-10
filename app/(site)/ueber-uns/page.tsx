@@ -46,11 +46,11 @@ export default function UeberUnsPage() {
           <div className="bg-muted p-8 rounded-lg">
             <div className="grid grid-cols-2 gap-6 text-center">
               <div>
-                <p className="text-4xl font-bold text-primary">500+</p>
+                <p className="text-4xl font-bold text-primary">4.627+</p>
                 <p className="text-muted-foreground">Geprüfte Firmen</p>
               </div>
               <div>
-                <p className="text-4xl font-bold text-primary">10.000+</p>
+                <p className="text-4xl font-bold text-primary">283+</p>
                 <p className="text-muted-foreground">Vermittelte Anfragen</p>
               </div>
               <div>
