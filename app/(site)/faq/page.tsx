@@ -75,7 +75,7 @@ const faqCategories = [
       {
         question: "Wie kann ich meine Firma bei Gerüstbauer24 eintragen?",
         answer: "Klicken Sie auf 'Firma eintragen' und füllen Sie das Registrierungsformular aus. Sie benötigen grundlegende Firmendaten, Leistungsbeschreibungen und optional Referenzfotos. Nach der Prüfung wird Ihr Profil freigeschaltet.",
-        link: { href: "/geruestbau/eintragen", text: "Jetzt Firma eintragen" }
+        link: { href: "/auth/registrieren", text: "Jetzt Firma eintragen" }
       },
       {
         question: "Was kostet der Firmeneintrag?",
@@ -252,7 +252,7 @@ export default function FAQPage() {
                       <p className="font-medium text-foreground">Kostenlos Firma eintragen</p>
                       <p className="text-sm text-muted-foreground">Erreichen Sie neue Kunden in Ihrer Region</p>
                     </div>
-                    <Link href="/geruestbau/eintragen" className="ml-auto">
+                    <Link href="/auth/registrieren" className="ml-auto">
                       <Button size="sm">Eintragen</Button>
                     </Link>
                   </div>
