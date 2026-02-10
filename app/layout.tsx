@@ -20,6 +20,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const description = settings.meta_description || "Finden Sie zuverlässige Gerüstbauer in Ihrer Region. Geprüfte Unternehmen, echte Bewertungen und schnelle Anfragen."
 
   return {
+    metadataBase: new URL("https://geruestbauer24.eu"),
     title: {
       default: title,
       template: `%s | Gerüstbauer24`,
