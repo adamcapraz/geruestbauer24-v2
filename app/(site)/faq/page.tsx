@@ -252,7 +252,7 @@ export default function FAQPage() {
                       <p className="font-medium text-foreground">Kostenlos Firma eintragen</p>
                       <p className="text-sm text-muted-foreground">Erreichen Sie neue Kunden in Ihrer Region</p>
                     </div>
-                    <Link href="/geruestbau/eintragen" className="ml-auto">
+                    <Link href="/auth/registrieren" className="ml-auto">
                       <Button size="sm">Eintragen</Button>
                     </Link>
                   </div>
