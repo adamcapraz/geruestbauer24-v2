@@ -1,51 +1,28 @@
-"use client"
-
-import React from "react"
-
-import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useToast } from "@/hooks/use-toast"
-import { Phone, Mail, MapPin, Clock, Send, MessageSquare, Building2, HelpCircle } from "lucide-react"
+import { Phone, Mail, MapPin, Clock, Building2, HelpCircle } from "lucide-react"
+import { getSettingsByKeys } from "@/lib/settings"
+import { KontaktForm } from "@/components/kontakt-form"
 
-export default function KontaktPage() {
-  const [name, setName] = useState("")
-  const [email, setEmail] = useState("")
-  const [betreff, setBetreff] = useState("")
-  const [nachricht, setNachricht] = useState("")
-  const [sending, setSending] = useState(false)
-  const { toast } = useToast()
+export const metadata = {
+  title: "Kontakt - Gerüstbauer24",
+  description: "Nehmen Sie Kontakt mit uns auf. Wir helfen Ihnen gerne weiter.",
+}
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    if (!name || !email || !betreff || !nachricht) {
-      toast({
-        title: "Fehlende Angaben",
-        description: "Bitte füllen Sie alle Felder aus.",
-        variant: "destructive",
-      })
-      return
-    }
+export default async function KontaktPage() {
+  const s = await getSettingsByKeys([
+    "contact_email",
+    "contact_phone",
+    "contact_address",
+    "impressum_firmenname",
+  ])
 
-    setSending(true)
-    await new Promise((resolve) => setTimeout(resolve, 1500))
-    
-    toast({
-      title: "Nachricht gesendet",
-      description: "Vielen Dank für Ihre Nachricht. Wir werden uns schnellstmöglich bei Ihnen melden.",
-    })
-    
-    setName("")
-    setEmail("")
-    setBetreff("")
-    setNachricht("")
-    setSending(false)
-  }
+  const phone = s.contact_phone || "+49 1639540595"
+  const email = s.contact_email || "info@geruestbauer24.eu"
+  const address = s.contact_address || "Musterstraße 123, 10115 Berlin"
+  const firmenname = s.impressum_firmenname || "Gerüstbauer24 GmbH"
+
+  const addressLines = address.split(",").map((line: string) => line.trim())
 
   return (
     <div className="min-h-screen bg-background">
@@ -56,7 +33,7 @@ export default function KontaktPage() {
             Kontakt
           </h1>
           <p className="text-xl text-slate-300 max-w-2xl mx-auto">
-            Haben Sie Fragen? Wir sind für Sie da!
+            {"Haben Sie Fragen? Wir sind für Sie da!"}
           </p>
         </div>
       </section>
@@ -64,83 +41,7 @@ export default function KontaktPage() {
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
           {/* Contact Form */}
-          <Card className="border-border">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <MessageSquare className="h-5 w-5 text-primary" />
-                Schreiben Sie uns
-              </CardTitle>
-              <CardDescription>
-                Füllen Sie das Formular aus und wir melden uns schnellstmöglich bei Ihnen.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Name *</Label>
-                  <Input
-                    id="name"
-                    placeholder="Ihr vollständiger Name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="email">E-Mail *</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="ihre@email.de"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="betreff">Betreff *</Label>
-                  <Select value={betreff} onValueChange={setBetreff}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Bitte wählen Sie einen Betreff" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="allgemein">Allgemeine Anfrage</SelectItem>
-                      <SelectItem value="firma">Fragen zum Firmeneintrag</SelectItem>
-                      <SelectItem value="technisch">Technisches Problem</SelectItem>
-                      <SelectItem value="feedback">Feedback & Verbesserungsvorschläge</SelectItem>
-                      <SelectItem value="kooperation">Kooperationsanfrage</SelectItem>
-                      <SelectItem value="sonstiges">Sonstiges</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="nachricht">Nachricht *</Label>
-                  <Textarea
-                    id="nachricht"
-                    placeholder="Ihre Nachricht an uns..."
-                    rows={5}
-                    value={nachricht}
-                    onChange={(e) => setNachricht(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <Button type="submit" className="w-full" disabled={sending}>
-                  {sending ? (
-                    "Wird gesendet..."
-                  ) : (
-                    <>
-                      <Send className="mr-2 h-4 w-4" />
-                      Nachricht senden
-                    </>
-                  )}
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
+          <KontaktForm />
 
           {/* Contact Information */}
           <div className="space-y-6">
@@ -148,7 +49,7 @@ export default function KontaktPage() {
               <CardHeader>
                 <CardTitle>Kontaktinformationen</CardTitle>
                 <CardDescription>
-                  Sie erreichen uns über folgende Wege
+                  {"Sie erreichen uns über folgende Wege"}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -158,7 +59,7 @@ export default function KontaktPage() {
                   </div>
                   <div>
                     <h3 className="font-medium text-foreground">Telefon</h3>
-                    <p className="text-muted-foreground">+49 1639540595</p>
+                    <p className="text-muted-foreground">{phone}</p>
                   </div>
                 </div>
 
@@ -168,7 +69,7 @@ export default function KontaktPage() {
                   </div>
                   <div>
                     <h3 className="font-medium text-foreground">E-Mail</h3>
-                    <p className="text-muted-foreground">info@geruestbauer24.eu</p>
+                    <p className="text-muted-foreground">{email}</p>
                   </div>
                 </div>
 
@@ -179,9 +80,10 @@ export default function KontaktPage() {
                   <div>
                     <h3 className="font-medium text-foreground">Adresse</h3>
                     <p className="text-muted-foreground">
-                      Gerüstbauer24 GmbH<br />
-                      Musterstraße 123<br />
-                      10115 Berlin<br />
+                      {firmenname}<br />
+                      {addressLines.map((line: string, i: number) => (
+                        <span key={i}>{line}<br /></span>
+                      ))}
                       Deutschland
                     </p>
                   </div>
@@ -204,7 +106,7 @@ export default function KontaktPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <HelpCircle className="h-5 w-5 text-primary" />
-                  Häufige Fragen
+                  {"Häufige Fragen"}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -213,25 +115,25 @@ export default function KontaktPage() {
                     Wie kann ich meine Firma eintragen?
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    Registrieren Sie sich kostenlos und folgen Sie den Anweisungen zur Firmeneintragung.
+                    {"Registrieren Sie sich kostenlos und folgen Sie den Anweisungen zur Firmeneintragung."}
                   </p>
                 </div>
 
                 <div>
                   <h3 className="font-medium text-foreground mb-1">
-                    Ist die Nutzung für Kunden kostenlos?
+                    {"Ist die Nutzung für Kunden kostenlos?"}
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    Ja, die Suche nach Gerüstbauern und das Senden von Anfragen ist für Kunden völlig kostenlos.
+                    {"Ja, die Suche nach Gerüstbauern und das Senden von Anfragen ist für Kunden völlig kostenlos."}
                   </p>
                 </div>
 
                 <div>
                   <h3 className="font-medium text-foreground mb-1">
-                    Wie werden die Firmen geprüft?
+                    {"Wie werden die Firmen geprüft?"}
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    Wir überprüfen Gewerbeanmeldung, Zertifizierungen und Qualifikationen vor der Freischaltung.
+                    {"Wir überprüfen Gewerbeanmeldung, Zertifizierungen und Qualifikationen vor der Freischaltung."}
                   </p>
                 </div>
               </CardContent>
@@ -247,9 +149,9 @@ export default function KontaktPage() {
                 <div className="flex items-start gap-4">
                   <Building2 className="h-8 w-8 text-primary" />
                   <div>
-                    <h3 className="font-bold text-foreground mb-2">Sie sind Gerüstbauer?</h3>
+                    <h3 className="font-bold text-foreground mb-2">{"Sie sind Gerüstbauer?"}</h3>
                     <p className="text-sm text-muted-foreground mb-4">
-                      Tragen Sie Ihr Unternehmen kostenlos ein und erreichen Sie neue Kunden.
+                      {"Tragen Sie Ihr Unternehmen kostenlos ein und erreichen Sie neue Kunden."}
                     </p>
                     <Button asChild>
                       <a href="/auth/registrieren">Firma eintragen</a>
