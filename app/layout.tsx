@@ -53,7 +53,7 @@ export default async function RootLayout({
   const gscVerification = analyticsSettings.google_search_console_verification
 
   return (
-    <html lang="de">
+    <html lang="de" suppressHydrationWarning>
       <head>
         {gscVerification && (
           <meta name="google-site-verification" content={gscVerification} />
