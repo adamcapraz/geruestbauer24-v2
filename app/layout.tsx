@@ -77,7 +77,23 @@ export default async function RootLayout({
         {analyticsSettings.custom_head_scripts && (
           <script
             dangerouslySetInnerHTML={{
-              __html: analyticsSettings.custom_head_scripts,
+              __html: `
+                (function(){
+                  var d=document,tmp=d.createElement('div');
+                  tmp.innerHTML=${JSON.stringify(analyticsSettings.custom_head_scripts)};
+                  var scripts=tmp.querySelectorAll('script');
+                  scripts.forEach(function(s){
+                    var ns=d.createElement('script');
+                    for(var i=0;i<s.attributes.length;i++){
+                      ns.setAttribute(s.attributes[i].name,s.attributes[i].value);
+                    }
+                    if(s.innerHTML)ns.innerHTML=s.innerHTML;
+                    d.head.appendChild(ns);
+                  });
+                  var others=tmp.querySelectorAll(':not(script)');
+                  others.forEach(function(el){d.head.appendChild(el.cloneNode(true));});
+                })();
+              `,
             }}
           />
         )}
