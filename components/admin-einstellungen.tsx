@@ -86,6 +86,7 @@ const SETTINGS_GROUPS: SettingsGroup[] = [
     icon: <Megaphone className="h-5 w-5" />,
     keys: [
       "google_adsense_id",
+      "custom_head_scripts",
       "featured_firma_enabled",
       "featured_firma_id",
       "banner_ads_enabled",
@@ -118,6 +119,7 @@ const LABELS: Record<string, string> = {
   cookie_consent_text: "Cookie-Banner Text",
   widerrufsbelehrung_text: "Widerrufsbelehrung",
   google_adsense_id: "Google AdSense Publisher ID",
+  custom_head_scripts: "Eigene Head-Scripts (HTML-Code f\u00fcr <head>)",
   featured_firma_enabled: "Gesponserte Firmen aktiviert",
   featured_firma_id: "Gesponserte Firma ID",
   banner_ads_enabled: "Banner-Werbung aktiviert",
@@ -144,10 +146,11 @@ const PLACEHOLDERS: Record<string, string> = {
   impressum_registernummer: "HRB 123456",
   impressum_ust_id: "DE123456789",
   google_adsense_id: "ca-pub-XXXXXXXXXX",
+  custom_head_scripts: '<script async src="https://example.com/script.js" crossorigin="anonymous"></script>',
   featured_firma_id: "Firma UUID",
 }
 
-const TEXTAREA_KEYS = ["datenschutz_text", "cookie_consent_text", "widerrufsbelehrung_text", "meta_description"]
+const TEXTAREA_KEYS = ["datenschutz_text", "cookie_consent_text", "widerrufsbelehrung_text", "meta_description", "custom_head_scripts"]
 const BOOLEAN_KEYS = ["cookie_consent_enabled", "featured_firma_enabled", "banner_ads_enabled"]
 
 export default function AdminEinstellungen() {
