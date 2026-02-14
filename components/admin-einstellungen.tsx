@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
 import {
-  Globe, BarChart3, Mail, Shield, Megaphone,
+  Globe, BarChart3, Mail, Shield, Megaphone, Code,
   Save, Loader2, CheckCircle, AlertCircle, ChevronDown, ChevronRight,
 } from "lucide-react"
 
@@ -91,6 +91,14 @@ const SETTINGS_GROUPS: SettingsGroup[] = [
       "banner_ads_enabled",
     ],
   },
+  {
+    title: "Benutzerdefinierte Head-Skripte",
+    description: "Eigenen HTML/Script-Code in den <head>-Bereich der Website einbetten (z.B. AdSense, Tracking-Pixel, Verifizierungscodes)",
+    icon: <Code className="h-5 w-5" />,
+    keys: [
+      "custom_head_scripts",
+    ],
+  },
 ]
 
 const LABELS: Record<string, string> = {
@@ -121,6 +129,7 @@ const LABELS: Record<string, string> = {
   featured_firma_enabled: "Gesponserte Firmen aktiviert",
   featured_firma_id: "Gesponserte Firma ID",
   banner_ads_enabled: "Banner-Werbung aktiviert",
+  custom_head_scripts: "Benutzerdefinierter Head-Code",
 }
 
 const PLACEHOLDERS: Record<string, string> = {
@@ -147,7 +156,7 @@ const PLACEHOLDERS: Record<string, string> = {
   featured_firma_id: "Firma UUID",
 }
 
-const TEXTAREA_KEYS = ["datenschutz_text", "cookie_consent_text", "widerrufsbelehrung_text", "meta_description"]
+const TEXTAREA_KEYS = ["datenschutz_text", "cookie_consent_text", "widerrufsbelehrung_text", "meta_description", "custom_head_scripts"]
 const BOOLEAN_KEYS = ["cookie_consent_enabled", "featured_firma_enabled", "banner_ads_enabled"]
 
 export default function AdminEinstellungen() {

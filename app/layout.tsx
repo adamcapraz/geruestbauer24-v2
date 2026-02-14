@@ -75,7 +75,7 @@ export default async function RootLayout({
           />
         )}
         {analyticsSettings.custom_head_scripts && (
-          <script
+          <div
             dangerouslySetInnerHTML={{
               __html: analyticsSettings.custom_head_scripts,
             }}
