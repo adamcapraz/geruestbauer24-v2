@@ -154,6 +154,7 @@ const PLACEHOLDERS: Record<string, string> = {
   impressum_ust_id: "DE123456789",
   google_adsense_id: "ca-pub-XXXXXXXXXX",
   featured_firma_id: "Firma UUID",
+  custom_head_scripts: '<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXX" crossorigin="anonymous"></script>',
 }
 
 const TEXTAREA_KEYS = ["datenschutz_text", "cookie_consent_text", "widerrufsbelehrung_text", "meta_description", "custom_head_scripts"]
