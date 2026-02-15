@@ -1,8 +1,8 @@
--- Add custom_head_scripts setting for injecting scripts into <head> (e.g. Google AdSense)
+-- Add custom_head_scripts key if not exists
 INSERT INTO einstellungen (schluessel, wert, beschreibung)
 VALUES (
   'custom_head_scripts',
   '',
-  'Head bölümüne eklenecek özel script kodları (örneğin Google AdSense, Facebook Pixel vb.)'
+  'Benutzerdefinierter HTML/Script-Code der in den <head>-Bereich eingefügt wird (z.B. AdSense, Tracking-Pixel)'
 )
 ON CONFLICT (schluessel) DO NOTHING;

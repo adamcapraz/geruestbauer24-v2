@@ -1,6 +1,7 @@
 import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
+import Script from "next/script"
 import { Toaster } from "@/components/ui/toaster"
 import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/components/auth-provider"
@@ -75,11 +76,39 @@ export default async function RootLayout({
             }}
           />
         )}
-        {analyticsSettings.custom_head_scripts && (
-          <HeadScripts html={analyticsSettings.custom_head_scripts} />
-        )}
       </head>
       <body className={`${inter.className} bg-background text-foreground min-h-screen`}>
+        {analyticsSettings.custom_head_scripts && (
+          <Script
+            id="custom-head-scripts"
+            strategy="afterInteractive"
+            dangerouslySetInnerHTML={{
+              __html: `
+                try {
+                  var customHTML = ${JSON.stringify(analyticsSettings.custom_head_scripts)};
+                  var parser = new DOMParser();
+                  var doc = parser.parseFromString(customHTML, 'text/html');
+                  var scripts = doc.querySelectorAll('script');
+                  scripts.forEach(function(s) {
+                    var newScript = document.createElement('script');
+                    if (s.src) { newScript.src = s.src; newScript.async = true; }
+                    if (s.textContent) { newScript.textContent = s.textContent; }
+                    for (var i = 0; i < s.attributes.length; i++) {
+                      var attr = s.attributes[i];
+                      if (attr.name !== 'src') newScript.setAttribute(attr.name, attr.value);
+                    }
+                    document.head.appendChild(newScript);
+                  });
+                  var metas = doc.querySelectorAll('meta, link');
+                  metas.forEach(function(el) {
+                    var clone = el.cloneNode(true);
+                    document.head.appendChild(clone);
+                  });
+                } catch(e) { console.error('Custom head scripts error:', e); }
+              `,
+            }}
+          />
+        )}
         {gtmId && (
           <noscript>
             <iframe
