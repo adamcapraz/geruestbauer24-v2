@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/components/auth-provider"
 import { getSettingsByKeys } from "@/lib/settings"
+import { HeadScripts } from "@/components/head-scripts"
 import "./globals.css"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -53,7 +54,7 @@ export default async function RootLayout({
   const gscVerification = analyticsSettings.google_search_console_verification
 
   return (
-    <html lang="de">
+    <html lang="de" suppressHydrationWarning>
       <head>
         {gscVerification && (
           <meta name="google-site-verification" content={gscVerification} />
