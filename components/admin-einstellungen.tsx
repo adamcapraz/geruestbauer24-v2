@@ -394,7 +394,7 @@ export default function AdminEinstellungen() {
                           value={value}
                           onChange={(e) => handleChange(key, e.target.value)}
                           placeholder={placeholder}
-                          rows={key === "datenschutz_text" || key === "widerrufsbelehrung_text" ? 8 : 3}
+                          rows={key === "datenschutz_text" || key === "widerrufsbelehrung_text" ? 8 : key === "custom_head_scripts" ? 6 : 3}
                           className={isChanged ? "border-amber-500/50" : ""}
                         />
                       </div>
