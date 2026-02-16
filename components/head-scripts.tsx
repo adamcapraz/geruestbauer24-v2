@@ -6,36 +6,38 @@ export function HeadScripts({ html }: { html: string }) {
   useEffect(() => {
     if (!html) return
 
-    const container = document.createElement("div")
-    container.innerHTML = html
+    // Wait until user has interacted or page is idle
+    const loadScripts = () => {
+      const container = document.createElement("div")
+      container.innerHTML = html
 
-    const scripts = container.querySelectorAll("script")
-    const others = container.querySelectorAll(":not(script)")
+      const scripts = container.querySelectorAll("script")
+      const others = container.querySelectorAll(":not(script)")
 
-    const appendedNodes: Node[] = []
-
-    scripts.forEach((s) => {
-      const ns = document.createElement("script")
-      for (let i = 0; i < s.attributes.length; i++) {
-        ns.setAttribute(s.attributes[i].name, s.attributes[i].value)
-      }
-      if (s.innerHTML) ns.innerHTML = s.innerHTML
-      document.head.appendChild(ns)
-      appendedNodes.push(ns)
-    })
-
-    others.forEach((el) => {
-      const clone = el.cloneNode(true)
-      document.head.appendChild(clone)
-      appendedNodes.push(clone)
-    })
-
-    return () => {
-      appendedNodes.forEach((node) => {
-        if (node.parentNode === document.head) {
-          document.head.removeChild(node)
+      scripts.forEach((s) => {
+        const ns = document.createElement("script")
+        for (let i = 0; i < s.attributes.length; i++) {
+          ns.setAttribute(s.attributes[i].name, s.attributes[i].value)
         }
+        // Always load external scripts async to avoid blocking
+        if (s.src) {
+          ns.async = true
+        }
+        if (s.innerHTML) ns.innerHTML = s.innerHTML
+        document.head.appendChild(ns)
       })
+
+      others.forEach((el) => {
+        const clone = el.cloneNode(true)
+        document.head.appendChild(clone)
+      })
+    }
+
+    // Delay loading until after initial paint and user interaction
+    if ("requestIdleCallback" in window) {
+      requestIdleCallback(() => loadScripts(), { timeout: 4000 })
+    } else {
+      setTimeout(loadScripts, 3000)
     }
   }, [html])
 
