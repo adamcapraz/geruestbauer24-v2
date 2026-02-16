@@ -55,14 +55,22 @@ export default async function RootLayout({
 
   return (
     <html lang="de" suppressHydrationWarning>
-      <head>
-        {gscVerification && (
-          <meta name="google-site-verification" content={gscVerification} />
-        )}
+      {gscVerification ? (
+        <head><meta name="google-site-verification" content={gscVerification} /></head>
+      ) : (
+        <head />
+      )}
+      <body className={`${inter.className} bg-background text-foreground min-h-screen`}>
         {gaId && (
           <>
-            <script async src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`} />
-            <script
+            <Script
+              id="ga-script"
+              src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
+              strategy="lazyOnload"
+            />
+            <Script
+              id="ga-config"
+              strategy="lazyOnload"
               dangerouslySetInnerHTML={{
                 __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${gaId}');`,
               }}
@@ -70,54 +78,26 @@ export default async function RootLayout({
           </>
         )}
         {gtmId && (
-          <script
-            dangerouslySetInnerHTML={{
-              __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${gtmId}');`,
-            }}
-          />
-        )}
-      </head>
-      <body className={`${inter.className} bg-background text-foreground min-h-screen`}>
-        {analyticsSettings.custom_head_scripts && (
-          <Script
-            id="custom-head-scripts"
-            strategy="afterInteractive"
-            dangerouslySetInnerHTML={{
-              __html: `
-                try {
-                  var customHTML = ${JSON.stringify(analyticsSettings.custom_head_scripts)};
-                  var parser = new DOMParser();
-                  var doc = parser.parseFromString(customHTML, 'text/html');
-                  var scripts = doc.querySelectorAll('script');
-                  scripts.forEach(function(s) {
-                    var newScript = document.createElement('script');
-                    if (s.src) { newScript.src = s.src; newScript.async = true; }
-                    if (s.textContent) { newScript.textContent = s.textContent; }
-                    for (var i = 0; i < s.attributes.length; i++) {
-                      var attr = s.attributes[i];
-                      if (attr.name !== 'src') newScript.setAttribute(attr.name, attr.value);
-                    }
-                    document.head.appendChild(newScript);
-                  });
-                  var metas = doc.querySelectorAll('meta, link');
-                  metas.forEach(function(el) {
-                    var clone = el.cloneNode(true);
-                    document.head.appendChild(clone);
-                  });
-                } catch(e) { console.error('Custom head scripts error:', e); }
-              `,
-            }}
-          />
-        )}
-        {gtmId && (
-          <noscript>
-            <iframe
-              src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
-              height="0"
-              width="0"
-              style={{ display: "none", visibility: "hidden" }}
+          <>
+            <Script
+              id="gtm-script"
+              strategy="lazyOnload"
+              dangerouslySetInnerHTML={{
+                __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${gtmId}');`,
+              }}
             />
-          </noscript>
+            <noscript>
+              <iframe
+                src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
+                height="0"
+                width="0"
+                style={{ display: "none", visibility: "hidden" }}
+              />
+            </noscript>
+          </>
+        )}
+        {analyticsSettings.custom_head_scripts && (
+          <HeadScripts html={analyticsSettings.custom_head_scripts} />
         )}
         <AuthProvider>
           <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
