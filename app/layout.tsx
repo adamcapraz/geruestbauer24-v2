@@ -55,11 +55,11 @@ export default async function RootLayout({
 
   return (
     <html lang="de" suppressHydrationWarning>
-      <head>
-        {gscVerification && (
-          <meta name="google-site-verification" content={gscVerification} />
-        )}
-      </head>
+      {gscVerification ? (
+        <head><meta name="google-site-verification" content={gscVerification} /></head>
+      ) : (
+        <head />
+      )}
       <body className={`${inter.className} bg-background text-foreground min-h-screen`}>
         {gaId && (
           <>
