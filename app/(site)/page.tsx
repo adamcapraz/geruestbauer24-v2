@@ -9,12 +9,12 @@ export default function Home() {
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
-      <section className="bg-gradient-to-b from-slate-900 to-slate-800 py-20 px-4">
+      <section className="bg-gradient-to-b from-slate-900 to-slate-800 py-20 px-4 min-h-[420px] md:min-h-[380px] flex items-center">
         <div className="container mx-auto text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6 text-balance text-white">
+          <h1 className="text-4xl md:text-5xl font-bold mb-6 text-balance text-white leading-tight md:leading-tight">
             Finden Sie zuverlässige Gerüstbauer in Ihrer Region
           </h1>
-          <p className="text-xl mb-10 max-w-2xl mx-auto text-slate-300">
+          <p className="text-xl mb-10 max-w-2xl mx-auto text-slate-300 leading-relaxed">
             Geprüfte Gerüstbaufirmen, echte Bewertungen und unverbindliche Anfragen - alles auf einer Plattform.
           </p>
           <SearchBar />
