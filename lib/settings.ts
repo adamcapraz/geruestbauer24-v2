@@ -4,11 +4,16 @@ export interface SiteSettings {
   [key: string]: string
 }
 
+function isSupabaseConfigured(): boolean {
+  return !!(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
+}
+
 /**
  * Fetches all settings from the einstellungen table.
  * Server-side only - uses the Supabase server client.
  */
 export async function getSettings(): Promise<SiteSettings> {
+  if (!isSupabaseConfigured()) return getDefaultSettings()
   try {
     const supabase = await createClient()
     const { data, error } = await supabase
@@ -35,6 +40,7 @@ export async function getSettings(): Promise<SiteSettings> {
  * Fetches specific settings by keys.
  */
 export async function getSettingsByKeys(keys: string[]): Promise<SiteSettings> {
+  if (!isSupabaseConfigured()) return getDefaultSettings()
   try {
     const supabase = await createClient()
     const { data, error } = await supabase
@@ -63,6 +69,7 @@ export async function getSettingsByKeys(keys: string[]): Promise<SiteSettings> {
  */
 export async function getSetting(key: string): Promise<string> {
   const defaults = getDefaultSettings()
+  if (!isSupabaseConfigured()) return defaults[key] || ""
   try {
     const supabase = await createClient()
     const { data, error } = await supabase
