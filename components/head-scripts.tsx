@@ -2,11 +2,22 @@
 
 import { useEffect } from "react"
 
+// Deprecated script sources that should not be loaded.
+// These cause PageSpeed warnings (Fledge API) and 403 errors.
+const BLOCKED_SCRIPT_PATTERNS = [
+  "pagead2.googlesyndication.com/pagead/js/adsbygoogle.js",
+  "googlesyndication.com/pagead/js/adsbygoogle.js",
+  "pagead2.googlesyndication.com/pagead/show_ads",
+]
+
+function isBlockedScript(src: string): boolean {
+  return BLOCKED_SCRIPT_PATTERNS.some((pattern) => src.includes(pattern))
+}
+
 export function HeadScripts({ html }: { html: string }) {
   useEffect(() => {
     if (!html) return
 
-    // Wait until user has interacted or page is idle
     const loadScripts = () => {
       const container = document.createElement("div")
       container.innerHTML = html
@@ -15,11 +26,15 @@ export function HeadScripts({ html }: { html: string }) {
       const others = container.querySelectorAll(":not(script)")
 
       scripts.forEach((s) => {
+        // Skip deprecated ad scripts that cause Fledge API warnings and 403 errors
+        if (s.src && isBlockedScript(s.src)) {
+          return
+        }
+
         const ns = document.createElement("script")
         for (let i = 0; i < s.attributes.length; i++) {
           ns.setAttribute(s.attributes[i].name, s.attributes[i].value)
         }
-        // Always load external scripts async to avoid blocking
         if (s.src) {
           ns.async = true
         }
@@ -27,13 +42,13 @@ export function HeadScripts({ html }: { html: string }) {
         document.head.appendChild(ns)
       })
 
+      // Non-script elements (meta tags etc.) are still added
       others.forEach((el) => {
         const clone = el.cloneNode(true)
         document.head.appendChild(clone)
       })
     }
 
-    // Delay loading until after initial paint and user interaction
     if ("requestIdleCallback" in window) {
       requestIdleCallback(() => loadScripts(), { timeout: 4000 })
     } else {
