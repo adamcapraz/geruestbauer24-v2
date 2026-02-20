@@ -28,7 +28,7 @@ export default function Header() {
       }`}
     >
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-        <Link href="/" className="font-bold text-xl md:text-2xl text-foreground">
+        <Link href="/" className="font-bold text-xl md:text-3xl text-foreground">
           Gerüstbauer<span className="text-primary">24</span>
         </Link>
 
