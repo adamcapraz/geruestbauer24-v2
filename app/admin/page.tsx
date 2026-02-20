@@ -228,6 +228,7 @@ export default function AdminDashboard() {
   }
 
   const loadAllData = async () => {
+    if (!supabase) return
     await Promise.all([
       loadFirmen(),
       loadFaqs(),
@@ -237,30 +238,54 @@ export default function AdminDashboard() {
   }
 
   const loadFirmen = async () => {
+    if (!supabase) return
     setFirmenLoading(true)
-    const { data } = await supabase.from("firmen").select("*").order("created_at", { ascending: false })
-    setFirmen(data || [])
+    try {
+      const { data, error } = await supabase.from("firmen").select("*").order("created_at", { ascending: false })
+      if (error) console.error("Firmen load error:", error)
+      setFirmen(data || [])
+    } catch (e) {
+      console.error("Firmen load exception:", e)
+    }
     setFirmenLoading(false)
   }
 
   const loadFaqs = async () => {
+    if (!supabase) return
     setFaqLoading(true)
-    const { data } = await supabase.from("faq").select("*").order("reihenfolge", { ascending: true })
-    setFaqs(data || [])
+    try {
+      const { data, error } = await supabase.from("faq").select("*").order("reihenfolge", { ascending: true })
+      if (error) console.error("FAQ load error:", error)
+      setFaqs(data || [])
+    } catch (e) {
+      console.error("FAQ load exception:", e)
+    }
     setFaqLoading(false)
   }
 
   const loadNachrichten = async () => {
+    if (!supabase) return
     setNachrichtenLoading(true)
-    const { data } = await supabase.from("kontakt_nachrichten").select("*").order("created_at", { ascending: false })
-    setNachrichten(data || [])
+    try {
+      const { data, error } = await supabase.from("kontakt_nachrichten").select("*").order("created_at", { ascending: false })
+      if (error) console.error("Nachrichten load error:", error)
+      setNachrichten(data || [])
+    } catch (e) {
+      console.error("Nachrichten load exception:", e)
+    }
     setNachrichtenLoading(false)
   }
 
   const loadAnfragen = async () => {
+    if (!supabase) return
     setAnfragenLoading(true)
-    const { data } = await supabase.from("anfragen").select("*, firma:firmen(name)").order("created_at", { ascending: false })
-    setAnfragen(data || [])
+    try {
+      const { data, error } = await supabase.from("anfragen").select("*, firma:firmen(name)").order("created_at", { ascending: false })
+      if (error) console.error("Anfragen load error:", error)
+      setAnfragen(data || [])
+    } catch (e) {
+      console.error("Anfragen load exception:", e)
+    }
     setAnfragenLoading(false)
   }
 
@@ -271,6 +296,7 @@ export default function AdminDashboard() {
 
   // Firma CRUD
   const saveFirma = async (formData: FormData) => {
+    if (!supabase) return
     const firmaData = {
       name: formData.get("name") as string,
       stadt: formData.get("stadt") as string,
@@ -297,6 +323,7 @@ export default function AdminDashboard() {
   }
 
   const deleteFirma = async (id: string) => {
+    if (!supabase) return
     if (confirm("Firma wirklich löschen?")) {
       await supabase.from("firmen").delete().eq("id", id)
       loadFirmen()
@@ -305,6 +332,7 @@ export default function AdminDashboard() {
 
   // FAQ CRUD
   const saveFaq = async (formData: FormData) => {
+    if (!supabase) return
     const faqData = {
       frage: formData.get("frage") as string,
       antwort: formData.get("antwort") as string,
@@ -325,6 +353,7 @@ export default function AdminDashboard() {
   }
 
   const deleteFaq = async (id: string) => {
+    if (!supabase) return
     if (confirm("FAQ wirklich löschen?")) {
       await supabase.from("faq").delete().eq("id", id)
       loadFaqs()
@@ -333,17 +362,20 @@ export default function AdminDashboard() {
 
   // Nachricht actions
   const markNachrichtAsRead = async (id: string) => {
+    if (!supabase) return
     await supabase.from("kontakt_nachrichten").update({ gelesen: true }).eq("id", id)
     loadNachrichten()
   }
 
   const markNachrichtAsAnswered = async (id: string) => {
+    if (!supabase) return
     await supabase.from("kontakt_nachrichten").update({ beantwortet: true }).eq("id", id)
     loadNachrichten()
   }
 
   // Anfrage actions
   const updateAnfrageStatus = async (id: string, status: string) => {
+    if (!supabase) return
     await supabase.from("anfragen").update({ status }).eq("id", id)
     loadAnfragen()
   }
