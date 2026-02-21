@@ -151,8 +151,71 @@ export default function StadtPage() {
     )
   }
 
+  // Generate JSON-LD structured data
+  const itemListSchema = firmen.length > 0 ? {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": `Gerüstbauer in ${stadtName}`,
+    "description": `Liste der geprüften Gerüstbaufirmen in ${stadtName}`,
+    "numberOfItems": firmen.length,
+    "itemListElement": firmen.map((f, index) => ({
+      "@type": "ListItem",
+      "position": index + 1,
+      "item": {
+        "@type": "LocalBusiness",
+        "name": f.name,
+        "url": `https://geruestbauer24.eu/geruestbau/${f.stadt_slug}/${f.slug}`,
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": f.stadt,
+          "addressRegion": f.bundesland,
+          "addressCountry": "DE"
+        },
+        ...((f.google_bewertung || f.bewertung) > 0 ? {
+          "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": (f.google_bewertung || f.bewertung)?.toFixed(1),
+            "reviewCount": f.google_anzahl_bewertungen || f.anzahlBewertungen || 0,
+            "bestRating": "5",
+            "worstRating": "1"
+          }
+        } : {})
+      }
+    }))
+  } : null
+
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqItems.map(item => ({
+      "@type": "Question",
+      "name": item.question,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": item.answer
+      }
+    }))
+  }
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Startseite", "item": "https://geruestbauer24.eu" },
+      { "@type": "ListItem", "position": 2, "name": "Gerüstbau", "item": "https://geruestbauer24.eu/geruestbau" },
+      { "@type": "ListItem", "position": 3, "name": `Gerüstbauer in ${stadtName}`, "item": `https://geruestbauer24.eu/geruestbau/${stadtSlug}` }
+    ]
+  }
+
   return (
     <main className="min-h-screen bg-background">
+      {/* JSON-LD Structured Data */}
+      {itemListSchema && (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }} />
+      )}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
+
       {/* Hero Section */}
       <section className="bg-slate-900 py-12 px-4">
         <div className="container mx-auto">
