@@ -5,9 +5,47 @@ import { FeaturedProperties } from "@/components/featured-properties"
 import Link from "next/link"
 import { Shield, Star, Zap, Building2, ArrowRight } from "lucide-react"
 
+const homepageSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "Gerüstbauer24 - Gerüstbaufirmen in Deutschland finden",
+  "description": "Finden Sie zuverlässige Gerüstbauer in Ihrer Region. Geprüfte Unternehmen, echte Bewertungen und schnelle Anfragen.",
+  "url": "https://geruestbauer24.eu",
+  "isPartOf": {
+    "@type": "WebSite",
+    "name": "Gerüstbauer24",
+    "url": "https://geruestbauer24.eu"
+  },
+  "about": {
+    "@type": "Service",
+    "name": "Gerüstbau-Vermittlung",
+    "description": "Vermittlung von professionellen Gerüstbau-Dienstleistungen in ganz Deutschland",
+    "areaServed": {
+      "@type": "Country",
+      "name": "Germany"
+    },
+    "provider": {
+      "@type": "Organization",
+      "name": "Gerüstbauer24",
+      "url": "https://geruestbauer24.eu"
+    },
+    "serviceType": ["Fassadengerüst", "Baugerüst", "Industriegerüst", "Hängegerüst", "Schutzgerüst", "Treppentürme"]
+  },
+  "speakable": {
+    "@type": "SpeakableSpecification",
+    "cssSelector": ["h1", ".hero-description"]
+  }
+}
+
 export default function Home() {
   return (
     <div className="flex flex-col">
+      {/* JSON-LD Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(homepageSchema) }}
+      />
+
       {/* Hero Section */}
       <section className="bg-gradient-to-b from-slate-900 to-slate-800 py-20 px-4 min-h-[420px] md:min-h-[380px] flex items-center">
         <div className="container mx-auto text-center">

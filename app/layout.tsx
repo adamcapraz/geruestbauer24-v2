@@ -99,6 +99,49 @@ export default async function RootLayout({
         {analyticsSettings.custom_head_scripts && (
           <HeadScripts html={analyticsSettings.custom_head_scripts} />
         )}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              "name": "Gerüstbauer24",
+              "url": "https://geruestbauer24.eu",
+              "logo": "https://geruestbauer24.eu/placeholder-logo.png",
+              "description": "Finden Sie zuverlässige Gerüstbauer in Ihrer Region. Geprüfte Unternehmen, echte Bewertungen und schnelle Anfragen.",
+              "contactPoint": {
+                "@type": "ContactPoint",
+                "telephone": "+49-163-9540595",
+                "contactType": "customer service",
+                "availableLanguage": ["German"]
+              },
+              "sameAs": [],
+              "areaServed": {
+                "@type": "Country",
+                "name": "Germany"
+              }
+            }),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              "name": "Gerüstbauer24",
+              "url": "https://geruestbauer24.eu",
+              "potentialAction": {
+                "@type": "SearchAction",
+                "target": {
+                  "@type": "EntryPoint",
+                  "urlTemplate": "https://geruestbauer24.eu/geruestbau?q={search_term_string}"
+                },
+                "query-input": "required name=search_term_string"
+              }
+            }),
+          }}
+        />
         <AuthProvider>
           <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
             {children}

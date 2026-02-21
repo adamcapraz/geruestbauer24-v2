@@ -222,8 +222,87 @@ export default function FirmaDetailClient() {
     )
   }
 
+  // Generate JSON-LD structured data for rich search results
+  const generateJsonLd = () => {
+    if (!firma) return null
+
+    const localBusiness = {
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      "name": firma.name,
+      "description": firma.beschreibung || `${firma.name} - Professioneller Gerüstbauer in ${firma.stadt}`,
+      "url": `https://geruestbauer24.eu/geruestbau/${firma.stadt_slug}/${firma.slug}`,
+      "telephone": displayPhone || undefined,
+      "email": firma.email || undefined,
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": firma.google_adresse || undefined,
+        "addressLocality": firma.stadt,
+        "addressRegion": firma.bundesland,
+        "postalCode": firma.plz || undefined,
+        "addressCountry": "DE"
+      },
+      ...(displayWebsite ? { "sameAs": [displayWebsite.startsWith("http") ? displayWebsite : `https://${displayWebsite}`] } : {}),
+      ...(displayRating > 0 && displayReviewCount > 0 ? {
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": displayRating.toFixed(1),
+          "reviewCount": displayReviewCount,
+          "bestRating": "5",
+          "worstRating": "1"
+        }
+      } : {}),
+      "image": displayPhotos.length > 0 ? displayPhotos[0] : "https://geruestbauer24.eu/placeholder-logo.png",
+      "priceRange": "$$",
+      "areaServed": {
+        "@type": "City",
+        "name": firma.stadt
+      },
+      ...(displayOpeningHours.length > 0 ? { "openingHours": displayOpeningHours } : {})
+    }
+
+    const faqSchema = faqItems.length > 0 ? {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": faqItems.map(item => ({
+        "@type": "Question",
+        "name": item.question,
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": item.answer
+        }
+      }))
+    } : null
+
+    const breadcrumb = {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Startseite", "item": "https://geruestbauer24.eu" },
+        { "@type": "ListItem", "position": 2, "name": "Gerüstbau", "item": "https://geruestbauer24.eu/geruestbau" },
+        { "@type": "ListItem", "position": 3, "name": `Gerüstbauer in ${firma.stadt}`, "item": `https://geruestbauer24.eu/geruestbau/${firma.stadt_slug}` },
+        { "@type": "ListItem", "position": 4, "name": firma.name, "item": `https://geruestbauer24.eu/geruestbau/${firma.stadt_slug}/${firma.slug}` }
+      ]
+    }
+
+    return { localBusiness, faqSchema, breadcrumb }
+  }
+
+  const jsonLd = generateJsonLd()
+
   return (
     <div className="min-h-screen bg-background">
+      {/* JSON-LD Structured Data */}
+      {jsonLd && (
+        <>
+          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd.localBusiness) }} />
+          {jsonLd.faqSchema && (
+            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd.faqSchema) }} />
+          )}
+          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd.breadcrumb) }} />
+        </>
+      )}
+
       {/* Header */}
       <section className="bg-slate-900 py-8 px-4">
         <div className="container mx-auto">
