@@ -1,7 +1,12 @@
 import type { Metadata } from "next"
+import dynamic from "next/dynamic"
 import { createClient } from "@/lib/supabase/server"
 import { denormalizeSlug } from "@/lib/utils/slug"
-import FirmaDetailClient from "@/components/firma-detail-client"
+
+const FirmaDetailClient = dynamic(
+  () => import("@/components/firma-detail-client"),
+  { ssr: false }
+)
 
 type Props = {
   params: Promise<{ stadt: string; firma: string }>

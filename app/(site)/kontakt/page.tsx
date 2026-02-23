@@ -1,8 +1,29 @@
+import dynamic from "next/dynamic"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Phone, Mail, MapPin, Clock, Building2, HelpCircle } from "lucide-react"
 import { getSettingsByKeys } from "@/lib/settings"
-import { KontaktForm } from "@/components/kontakt-form"
+
+const KontaktForm = dynamic(
+  () => import("@/components/kontakt-form").then(mod => ({ default: mod.KontaktForm })),
+  {
+    loading: () => (
+      <Card className="border-border">
+        <CardContent className="p-6">
+          <Skeleton className="h-8 w-1/2 mb-6" />
+          <div className="space-y-4">
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-24 w-full" />
+            <Skeleton className="h-10 w-1/3" />
+          </div>
+        </CardContent>
+      </Card>
+    ),
+    ssr: false,
+  }
+)
 
 export const metadata = {
   title: "Kontakt - Gerüstbauer24",
