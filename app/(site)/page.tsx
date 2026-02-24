@@ -1,9 +1,23 @@
+import dynamic from "next/dynamic"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { SearchBar } from "@/components/search-bar"
-import { FeaturedProperties } from "@/components/featured-properties"
+import { Skeleton } from "@/components/ui/skeleton"
 import Link from "next/link"
 import { Shield, Star, Zap, Building2, ArrowRight } from "lucide-react"
+
+const FeaturedProperties = dynamic(
+  () => import("@/components/featured-properties").then(mod => ({ default: mod.FeaturedProperties })),
+  {
+    loading: () => (
+      <div className="grid md:grid-cols-3 gap-6">
+        {[1, 2, 3].map((i) => (
+          <Card key={i}><CardContent className="p-6"><Skeleton className="h-6 w-3/4 mb-4" /><Skeleton className="h-4 w-1/2 mb-2" /><Skeleton className="h-4 w-1/4" /></CardContent></Card>
+        ))}
+      </div>
+    ),
+  }
+)
 
 const homepageSchema = {
   "@context": "https://schema.org",

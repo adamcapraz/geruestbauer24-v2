@@ -39,7 +39,12 @@ import {
   RefreshCw,
 } from "lucide-react"
 import type { User } from "@supabase/supabase-js"
-import AdminEinstellungen from "@/components/admin-einstellungen"
+import dynamic from "next/dynamic"
+
+const AdminEinstellungen = dynamic(
+  () => import("@/components/admin-einstellungen"),
+  { ssr: false }
+)
 
 interface Firma {
   id: string
