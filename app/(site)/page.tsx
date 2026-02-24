@@ -16,7 +16,6 @@ const FeaturedProperties = dynamic(
         ))}
       </div>
     ),
-    ssr: false,
   }
 )
 

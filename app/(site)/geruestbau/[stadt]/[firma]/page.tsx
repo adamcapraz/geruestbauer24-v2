@@ -4,8 +4,7 @@ import { createClient } from "@/lib/supabase/server"
 import { denormalizeSlug } from "@/lib/utils/slug"
 
 const FirmaDetailClient = dynamic(
-  () => import("@/components/firma-detail-client"),
-  { ssr: false }
+  () => import("@/components/firma-detail-client")
 )
 
 type Props = {

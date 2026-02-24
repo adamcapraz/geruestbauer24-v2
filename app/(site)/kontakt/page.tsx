@@ -21,7 +21,6 @@ const KontaktForm = dynamic(
         </CardContent>
       </Card>
     ),
-    ssr: false,
   }
 )
 
