@@ -40,6 +40,9 @@ export default function Header() {
           <Link href="/ueber-uns" className="text-foreground hover:text-primary transition-colors">
             Über uns
           </Link>
+          <Link href="/blog" className="text-foreground hover:text-primary transition-colors">
+            Blog
+          </Link>
           <Link href="/faq" className="text-foreground hover:text-primary transition-colors">
             FAQ
           </Link>
@@ -119,6 +122,9 @@ export default function Header() {
               </Link>
               <Link href="/ueber-uns" className="flex items-center gap-2 py-2">
                 Über uns
+              </Link>
+              <Link href="/blog" className="flex items-center gap-2 py-2">
+                Blog
               </Link>
               <Link href="/faq" className="flex items-center gap-2 py-2">
                 FAQ

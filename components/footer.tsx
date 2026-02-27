@@ -47,6 +47,11 @@ export default async function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/blog" className="text-slate-300 hover:text-primary transition-colors">
+                  Blog
+                </Link>
+              </li>
+              <li>
                 <Link href="/auth/registrieren" className="text-slate-300 hover:text-primary transition-colors">
                   Firma eintragen
                 </Link>
