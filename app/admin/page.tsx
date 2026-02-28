@@ -37,12 +37,18 @@ import {
   Phone,
   Globe,
   RefreshCw,
+  Newspaper,
 } from "lucide-react"
 import type { User } from "@supabase/supabase-js"
 import dynamic from "next/dynamic"
 
 const AdminEinstellungen = dynamic(
   () => import("@/components/admin-einstellungen"),
+  { ssr: false }
+)
+
+const AdminBlog = dynamic(
+  () => import("@/components/admin-blog"),
   { ssr: false }
 )
 
@@ -732,6 +738,10 @@ export default function AdminDashboard() {
               {stats.anfragenNeu > 0 && (
                 <Badge variant="destructive" className="ml-1">{stats.anfragenNeu}</Badge>
               )}
+            </TabsTrigger>
+            <TabsTrigger value="blog" className="gap-2">
+              <Newspaper className="h-4 w-4" />
+              Blog
             </TabsTrigger>
             <TabsTrigger value="einstellungen" className="gap-2">
               <Settings className="h-4 w-4" />
@@ -1585,6 +1595,11 @@ export default function AdminDashboard() {
                 </Table>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Blog Tab */}
+          <TabsContent value="blog">
+            <AdminBlog />
           </TabsContent>
 
           {/* Einstellungen Tab */}
