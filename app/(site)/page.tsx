@@ -57,6 +57,7 @@ export default function Home() {
       {/* JSON-LD Structured Data */}
       <script
         type="application/ld+json"
+        suppressHydrationWarning
         dangerouslySetInnerHTML={{ __html: JSON.stringify(homepageSchema) }}
       />
 

@@ -293,15 +293,15 @@ export default function FirmaDetailClient() {
   return (
     <div className="min-h-screen bg-background">
       {/* JSON-LD Structured Data */}
-      {jsonLd && (
-        <>
-          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd.localBusiness) }} />
-          {jsonLd.faqSchema && (
-            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd.faqSchema) }} />
-          )}
-          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd.breadcrumb) }} />
-        </>
-      )}
+{jsonLd && (
+  <>
+  <script type="application/ld+json" suppressHydrationWarning dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd.localBusiness) }} />
+  {jsonLd.faqSchema && (
+  <script type="application/ld+json" suppressHydrationWarning dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd.faqSchema) }} />
+  )}
+  <script type="application/ld+json" suppressHydrationWarning dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd.breadcrumb) }} />
+  </>
+  )}
 
       {/* Header */}
       <section className="bg-slate-900 py-8 px-4">
