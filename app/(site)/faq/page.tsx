@@ -163,6 +163,7 @@ export default function FAQPage() {
       {/* JSON-LD Schema Markup */}
       <script
         type="application/ld+json"
+        suppressHydrationWarning
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
 
