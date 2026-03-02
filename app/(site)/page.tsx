@@ -1,4 +1,5 @@
 import dynamic from "next/dynamic"
+import Script from "next/script"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { SearchBar } from "@/components/search-bar"
@@ -55,9 +56,10 @@ export default function Home() {
   return (
     <div className="flex flex-col">
       {/* JSON-LD Structured Data */}
-      <script
+      <Script
+        id="homepage-jsonld"
         type="application/ld+json"
-        suppressHydrationWarning
+        strategy="beforeInteractive"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(homepageSchema) }}
       />
 

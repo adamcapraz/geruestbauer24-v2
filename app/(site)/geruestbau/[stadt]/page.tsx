@@ -206,15 +206,34 @@ export default function StadtPage() {
     ]
   }
 
+  // Add JSON-LD scripts dynamically on client side
+  useEffect(() => {
+    const addScript = (data: object, id: string) => {
+      const existingScript = document.getElementById(id)
+      if (existingScript) existingScript.remove()
+      
+      const script = document.createElement("script")
+      script.id = id
+      script.type = "application/ld+json"
+      script.textContent = JSON.stringify(data)
+      document.head.appendChild(script)
+    }
+    
+    if (itemListSchema) {
+      addScript(itemListSchema, "jsonld-itemlist")
+    }
+    addScript(faqSchema, "jsonld-faq")
+    addScript(breadcrumbSchema, "jsonld-breadcrumb")
+    
+    return () => {
+      document.getElementById("jsonld-itemlist")?.remove()
+      document.getElementById("jsonld-faq")?.remove()
+      document.getElementById("jsonld-breadcrumb")?.remove()
+    }
+  }, [itemListSchema, faqSchema, breadcrumbSchema])
+
   return (
     <main className="min-h-screen bg-background">
-{/* JSON-LD Structured Data */}
-  {itemListSchema && (
-  <script type="application/ld+json" suppressHydrationWarning dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }} />
-  )}
-  <script type="application/ld+json" suppressHydrationWarning dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
-  <script type="application/ld+json" suppressHydrationWarning dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
-
       {/* Hero Section */}
       <section className="bg-slate-900 py-12 px-4">
         <div className="container mx-auto">

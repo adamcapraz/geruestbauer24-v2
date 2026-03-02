@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import Image from "next/image"
+import Script from "next/script"
 import { createClient } from "@/lib/supabase/server"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -80,9 +81,10 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
   return (
     <main className="min-h-screen bg-background">
       {/* JSON-LD */}
-      <script
+      <Script
+        id="blog-jsonld"
         type="application/ld+json"
-        suppressHydrationWarning
+        strategy="beforeInteractive"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(blogSchema) }}
       />
 

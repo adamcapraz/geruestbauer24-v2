@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Script from "next/script"
 import { Button } from "@/components/ui/button"
 import {
   Accordion,
@@ -161,9 +162,10 @@ export default function FAQPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* JSON-LD Schema Markup */}
-      <script
+      <Script
+        id="faq-jsonld"
         type="application/ld+json"
-        suppressHydrationWarning
+        strategy="beforeInteractive"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
 
