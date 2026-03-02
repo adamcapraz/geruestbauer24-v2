@@ -21,17 +21,15 @@ export async function getSettings(): Promise<SiteSettings> {
       .select("schluessel, wert")
 
     if (error || !data) {
-      console.error("Failed to fetch settings:", error?.message)
       return getDefaultSettings()
     }
 
-    const settings: SiteSettings = {}
+    const settings: SiteSettings = getDefaultSettings()
     for (const row of data) {
       settings[row.schluessel] = row.wert
     }
     return settings
-  } catch (err) {
-    console.error("Settings fetch error:", err)
+  } catch {
     return getDefaultSettings()
   }
 }
@@ -49,17 +47,15 @@ export async function getSettingsByKeys(keys: string[]): Promise<SiteSettings> {
       .in("schluessel", keys)
 
     if (error || !data) {
-      console.error("Failed to fetch settings:", error?.message)
       return getDefaultSettings()
     }
 
-    const settings: SiteSettings = {}
+    const settings: SiteSettings = getDefaultSettings()
     for (const row of data) {
       settings[row.schluessel] = row.wert
     }
     return settings
-  } catch (err) {
-    console.error("Settings fetch error:", err)
+  } catch {
     return getDefaultSettings()
   }
 }

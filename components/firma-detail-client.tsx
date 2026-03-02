@@ -290,18 +290,36 @@ export default function FirmaDetailClient() {
 
   const jsonLd = generateJsonLd()
 
+  // Add JSON-LD scripts dynamically on client side
+  useEffect(() => {
+    if (!jsonLd) return
+    
+    const addScript = (data: object, id: string) => {
+      const existingScript = document.getElementById(id)
+      if (existingScript) existingScript.remove()
+      
+      const script = document.createElement("script")
+      script.id = id
+      script.type = "application/ld+json"
+      script.textContent = JSON.stringify(data)
+      document.head.appendChild(script)
+    }
+    
+    addScript(jsonLd.localBusiness, "jsonld-local-business")
+    addScript(jsonLd.breadcrumb, "jsonld-breadcrumb")
+    if (jsonLd.faqSchema) {
+      addScript(jsonLd.faqSchema, "jsonld-faq")
+    }
+    
+    return () => {
+      document.getElementById("jsonld-local-business")?.remove()
+      document.getElementById("jsonld-breadcrumb")?.remove()
+      document.getElementById("jsonld-faq")?.remove()
+    }
+  }, [jsonLd])
+
   return (
     <div className="min-h-screen bg-background">
-      {/* JSON-LD Structured Data */}
-      {jsonLd && (
-        <>
-          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd.localBusiness) }} />
-          {jsonLd.faqSchema && (
-            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd.faqSchema) }} />
-          )}
-          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd.breadcrumb) }} />
-        </>
-      )}
 
       {/* Header */}
       <section className="bg-slate-900 py-8 px-4">

@@ -9,14 +9,17 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
 import { Send, MessageSquare } from "lucide-react"
+import { createClient } from "@/lib/supabase/client"
 
 export function KontaktForm() {
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
+  const [telefon, setTelefon] = useState("")
   const [betreff, setBetreff] = useState("")
   const [nachricht, setNachricht] = useState("")
   const [sending, setSending] = useState(false)
   const { toast } = useToast()
+  const supabase = createClient()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -31,17 +34,36 @@ export function KontaktForm() {
     }
 
     setSending(true)
-    await new Promise((resolve) => setTimeout(resolve, 1500))
 
-    toast({
-      title: "Nachricht gesendet",
-      description: "Vielen Dank für Ihre Nachricht. Wir werden uns schnellstmöglich bei Ihnen melden.",
+    const { error } = await supabase.from("kontakt_nachrichten").insert({
+      name,
+      email,
+      telefon: telefon || null,
+      betreff,
+      nachricht,
+      gelesen: false,
+      beantwortet: false,
     })
 
-    setName("")
-    setEmail("")
-    setBetreff("")
-    setNachricht("")
+    if (error) {
+      toast({
+        title: "Fehler",
+        description: "Die Nachricht konnte nicht gesendet werden. Bitte versuchen Sie es später erneut.",
+        variant: "destructive",
+      })
+    } else {
+      toast({
+        title: "Nachricht gesendet",
+        description: "Vielen Dank für Ihre Nachricht. Wir werden uns schnellstmöglich bei Ihnen melden.",
+      })
+
+      setName("")
+      setEmail("")
+      setTelefon("")
+      setBetreff("")
+      setNachricht("")
+    }
+
     setSending(false)
   }
 
@@ -78,6 +100,17 @@ export function KontaktForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="telefon">Telefon (optional)</Label>
+            <Input
+              id="telefon"
+              type="tel"
+              placeholder="Ihre Telefonnummer"
+              value={telefon}
+              onChange={(e) => setTelefon(e.target.value)}
             />
           </div>
 
