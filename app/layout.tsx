@@ -99,9 +99,10 @@ export default async function RootLayout({
         {analyticsSettings.custom_head_scripts && (
           <HeadScripts html={analyticsSettings.custom_head_scripts} />
         )}
-        <script
+        <Script
+          id="organization-jsonld"
           type="application/ld+json"
-          suppressHydrationWarning
+          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
@@ -124,9 +125,10 @@ export default async function RootLayout({
             }),
           }}
         />
-        <script
+        <Script
+          id="website-jsonld"
           type="application/ld+json"
-          suppressHydrationWarning
+          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
