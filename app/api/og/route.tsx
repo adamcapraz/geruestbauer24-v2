@@ -1,11 +1,3 @@
-/**
- * GET /api/og?title=...&subtitle=...&type=firma|blog|city|default
- *
- * Dinamik Open Graph görseli üretir.
- * Metadata'da şöyle kullanılır:
- *   images: [{ url: `/api/og?title=${encodeURIComponent(title)}`, width: 1200, height: 630 }]
- */
-
 import { ImageResponse } from "@vercel/og"
 
 export const runtime = "edge"
@@ -14,10 +6,14 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const title = searchParams.get("title") ?? "Gerüstbauer finden"
   const subtitle = searchParams.get("subtitle") ?? "Geprüfte Gerüstbaufirmen in Deutschland"
-  const type = searchParams.get("type") ?? "default" // firma | blog | city | default
+  const type = searchParams.get("type") ?? "default"
 
-  // Tip bazında renk tonu
-  const accentColor = type === "blog" ? "#f97316" : "#f97316" // turuncu
+  const accentColor = "#f97316"
+
+  const typeLabel =
+    type === "firma" ? "Gerüstbaufirma" :
+    type === "blog" ? "Blog Artikel" :
+    type === "city" ? "Standort" : ""
 
   return new ImageResponse(
     (
@@ -27,25 +23,10 @@ export async function GET(request: Request) {
           height: "100%",
           display: "flex",
           flexDirection: "column",
-          backgroundColor: "#0f172a", // slate-900
-          position: "relative",
+          backgroundColor: "#0f172a",
           fontFamily: "sans-serif",
         }}
       >
-        {/* Arka plan deseni */}
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundImage:
-              "radial-gradient(circle at 20% 50%, rgba(249,115,22,0.15) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(249,115,22,0.1) 0%, transparent 40%)",
-          }}
-        />
-
-        {/* İçerik */}
         <div
           style={{
             display: "flex",
@@ -53,7 +34,6 @@ export async function GET(request: Request) {
             justifyContent: "space-between",
             height: "100%",
             padding: "60px 70px",
-            position: "relative",
           }}
         >
           {/* Üst: Logo ve tip etiketi */}
@@ -75,15 +55,15 @@ export async function GET(request: Request) {
               >
                 G
               </div>
-              <span style={{ color: "white", fontSize: "24px", fontWeight: "bold" }}>
-                Gerüstbauer<span style={{ color: accentColor }}>24</span>
-              </span>
+              <div style={{ display: "flex", color: "white", fontSize: "24px", fontWeight: "bold" }}>
+                Geruestbauer24
+              </div>
             </div>
-            {type !== "default" && (
+            {typeLabel ? (
               <div
                 style={{
+                  display: "flex",
                   backgroundColor: "rgba(249,115,22,0.2)",
-                  border: "1px solid rgba(249,115,22,0.5)",
                   borderRadius: "6px",
                   padding: "6px 14px",
                   color: accentColor,
@@ -91,18 +71,18 @@ export async function GET(request: Request) {
                   fontWeight: "600",
                 }}
               >
-                {type === "firma" && "🏗 Gerüstbaufirma"}
-                {type === "blog" && "📝 Blog Artikel"}
-                {type === "city" && "📍 Standort"}
+                {typeLabel}
               </div>
+            ) : (
+              <div style={{ display: "flex" }} />
             )}
           </div>
 
           {/* Orta: Başlık */}
           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-            {/* Üst çizgi */}
             <div
               style={{
+                display: "flex",
                 width: "60px",
                 height: "4px",
                 backgroundColor: accentColor,
@@ -111,6 +91,7 @@ export async function GET(request: Request) {
             />
             <div
               style={{
+                display: "flex",
                 color: "white",
                 fontSize: title.length > 50 ? "42px" : "52px",
                 fontWeight: "bold",
@@ -120,10 +101,11 @@ export async function GET(request: Request) {
             >
               {title}
             </div>
-            {subtitle && (
+            {subtitle ? (
               <div
                 style={{
-                  color: "#94a3b8", // slate-400
+                  display: "flex",
+                  color: "#94a3b8",
                   fontSize: "22px",
                   lineHeight: "1.4",
                   maxWidth: "800px",
@@ -131,6 +113,8 @@ export async function GET(request: Request) {
               >
                 {subtitle}
               </div>
+            ) : (
+              <div style={{ display: "flex" }} />
             )}
           </div>
 
@@ -140,11 +124,10 @@ export async function GET(request: Request) {
               display: "flex",
               alignItems: "center",
               gap: "8px",
-              color: "#64748b", // slate-500
+              color: "#64748b",
               fontSize: "16px",
             }}
           >
-            <span>🌐</span>
             <span>geruestbauer24.eu</span>
           </div>
         </div>
