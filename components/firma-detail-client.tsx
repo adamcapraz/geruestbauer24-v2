@@ -222,102 +222,6 @@ export default function FirmaDetailClient() {
     )
   }
 
-  // Generate JSON-LD structured data for rich search results
-  const generateJsonLd = () => {
-    if (!firma) return null
-
-    const localBusiness = {
-      "@context": "https://schema.org",
-      "@type": "LocalBusiness",
-      "name": firma.name,
-      "description": firma.beschreibung || `${firma.name} - Professioneller Gerüstbauer in ${firma.stadt}`,
-      "url": `https://geruestbauer24.eu/geruestbau/${firma.stadt_slug}/${firma.slug}`,
-      "telephone": displayPhone || undefined,
-      "email": firma.email || undefined,
-      "address": {
-        "@type": "PostalAddress",
-        "streetAddress": firma.google_adresse || undefined,
-        "addressLocality": firma.stadt,
-        "addressRegion": firma.bundesland,
-        "postalCode": firma.plz || undefined,
-        "addressCountry": "DE"
-      },
-      ...(displayWebsite ? { "sameAs": [displayWebsite.startsWith("http") ? displayWebsite : `https://${displayWebsite}`] } : {}),
-      ...(displayRating > 0 && displayReviewCount > 0 ? {
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": displayRating.toFixed(1),
-          "reviewCount": displayReviewCount,
-          "bestRating": "5",
-          "worstRating": "1"
-        }
-      } : {}),
-      "image": displayPhotos.length > 0 ? displayPhotos[0] : "https://geruestbauer24.eu/placeholder-logo.png",
-      "priceRange": "$$",
-      "areaServed": {
-        "@type": "City",
-        "name": firma.stadt
-      },
-      ...(displayOpeningHours.length > 0 ? { "openingHours": displayOpeningHours } : {})
-    }
-
-    const faqSchema = faqItems.length > 0 ? {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "mainEntity": faqItems.map(item => ({
-        "@type": "Question",
-        "name": item.question,
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": item.answer
-        }
-      }))
-    } : null
-
-    const breadcrumb = {
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      "itemListElement": [
-        { "@type": "ListItem", "position": 1, "name": "Startseite", "item": "https://geruestbauer24.eu" },
-        { "@type": "ListItem", "position": 2, "name": "Gerüstbau", "item": "https://geruestbauer24.eu/geruestbau" },
-        { "@type": "ListItem", "position": 3, "name": `Gerüstbauer in ${firma.stadt}`, "item": `https://geruestbauer24.eu/geruestbau/${firma.stadt_slug}` },
-        { "@type": "ListItem", "position": 4, "name": firma.name, "item": `https://geruestbauer24.eu/geruestbau/${firma.stadt_slug}/${firma.slug}` }
-      ]
-    }
-
-    return { localBusiness, faqSchema, breadcrumb }
-  }
-
-  const jsonLd = generateJsonLd()
-
-  // Add JSON-LD scripts dynamically on client side
-  useEffect(() => {
-    if (!jsonLd) return
-    
-    const addScript = (data: object, id: string) => {
-      const existingScript = document.getElementById(id)
-      if (existingScript) existingScript.remove()
-      
-      const script = document.createElement("script")
-      script.id = id
-      script.type = "application/ld+json"
-      script.textContent = JSON.stringify(data)
-      document.head.appendChild(script)
-    }
-    
-    addScript(jsonLd.localBusiness, "jsonld-local-business")
-    addScript(jsonLd.breadcrumb, "jsonld-breadcrumb")
-    if (jsonLd.faqSchema) {
-      addScript(jsonLd.faqSchema, "jsonld-faq")
-    }
-    
-    return () => {
-      document.getElementById("jsonld-local-business")?.remove()
-      document.getElementById("jsonld-breadcrumb")?.remove()
-      document.getElementById("jsonld-faq")?.remove()
-    }
-  }, [jsonLd])
-
   return (
     <div className="min-h-screen bg-background">
 
@@ -391,7 +295,7 @@ export default function FirmaDetailClient() {
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             
-            {/* Introduction Section - SEO optimized */}
+            {/* Introduction Section */}
             <Card>
               <CardHeader>
                 <CardTitle>Über {firma.name}</CardTitle>
