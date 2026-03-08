@@ -1,16 +1,50 @@
+/**
+ * /blog/[slug] — Blog detay sayfası
+ *
+ * DEĞİŞİKLİKLER:
+ * - OG image eklendi (blog başlığıyla dinamik görsel)
+ * - twitter:card eklendi
+ * - Canonical URL absolute yapıldı
+ * - OG image width/height/type/alt eklendi
+ * - generateStaticParams eklendi (build zamanında render)
+ * - revalidate eklendi (blog yazıları haftada bir yenilenir)
+ * - JSON-LD zaten iyi yazılmış, korundu + küçük iyileştirmeler yapıldı
+ */
+
 import type { Metadata } from "next"
 import Link from "next/link"
 import Image from "next/image"
 import { notFound } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
+import { createClient as createServerlessClient } from "@supabase/supabase-js"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Calendar, Clock, ArrowLeft, ArrowRight, Share2 } from "lucide-react"
 
+const BASE_URL = "https://geruestbauer24.eu"
+
 interface BlogDetailPageProps {
   params: Promise<{ slug: string }>
 }
+
+// Build zamanında tüm yayınlanmış blog yazılarını oluştur
+export async function generateStaticParams() {
+  const supabase = createServerlessClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
+
+  const { data: posts } = await supabase
+    .from("blog_posts")
+    .select("slug")
+    .eq("is_published", true)
+
+  return (posts || []).map((post: { slug: string }) => ({ slug: post.slug }))
+}
+
+// Blog yazıları haftada bir yenilenir
+export const revalidate = 604800
 
 export async function generateMetadata({ params }: BlogDetailPageProps): Promise<Metadata> {
   const { slug } = await params
@@ -18,7 +52,7 @@ export async function generateMetadata({ params }: BlogDetailPageProps): Promise
 
   const { data: post } = await supabase
     .from("blog_posts")
-    .select("title, summary, image_url")
+    .select("title, summary, image_url, category")
     .eq("slug", slug)
     .eq("is_published", true)
     .single()
@@ -27,14 +61,35 @@ export async function generateMetadata({ params }: BlogDetailPageProps): Promise
     return { title: "Beitrag nicht gefunden" }
   }
 
+  // Dinamik OG görseli — blog yazısı başlığını içerir
+  const ogImageUrl = `${BASE_URL}/api/og?title=${encodeURIComponent(post.title)}&subtitle=${encodeURIComponent(post.category || "Gerüstbau Ratgeber")}&type=blog`
+
   return {
     title: `${post.title} | Gerüstbauer24 Blog`,
     description: post.summary,
+    alternates: {
+      canonical: `${BASE_URL}/blog/${slug}`,
+    },
     openGraph: {
       title: post.title,
       description: post.summary,
       type: "article",
-      images: post.image_url ? [{ url: post.image_url }] : [],
+      locale: "de_DE",
+      siteName: "Gerüstbauer24",
+      images: [
+        {
+          // Eğer gerçek bir görsel varsa onu kullan, yoksa dinamik OG görseli
+          url: post.image_url || ogImageUrl,
+          width: 1200,
+          height: 630,
+          type: post.image_url ? "image/jpeg" : "image/png",
+          alt: post.title,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      images: [post.image_url || ogImageUrl],
     },
   }
 }
@@ -43,7 +98,6 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
   const { slug } = await params
   const supabase = await createClient()
 
-  // Fetch the post
   const { data: post } = await supabase
     .from("blog_posts")
     .select("*")
@@ -55,7 +109,6 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
     notFound()
   }
 
-  // Fetch related posts (same category, excluding current)
   const { data: relatedPosts } = await supabase
     .from("blog_posts")
     .select("id, title, slug, summary, image_url, published_at")
@@ -73,71 +126,65 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
     })
   }
 
-  // Estimate reading time (200 words per minute)
   const wordCount = post.content?.split(/\s+/).length || 0
   const readingTime = Math.max(1, Math.ceil(wordCount / 200))
+  const tags: string[] = post.tags || []
 
-  // Parse tags
-  const tags = post.tags || []
-
-  // JSON-LD Schema
+  // JSON-LD: BlogPosting (iyi yazılmış, sadece küçük iyileştirmeler)
   const articleSchema = {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
     "headline": post.title,
     "description": post.summary,
-    "image": post.image_url || "https://geruestbauer24.eu/placeholder-logo.png",
+    "image": post.image_url || `${BASE_URL}/placeholder-logo.png`,
     "datePublished": post.published_at,
-    "dateModified": post.updated_at,
+    "dateModified": post.updated_at || post.published_at,
     "author": {
       "@type": "Organization",
       "name": "Gerüstbauer24",
-      "url": "https://geruestbauer24.eu"
+      "url": BASE_URL,
     },
     "publisher": {
       "@type": "Organization",
       "name": "Gerüstbauer24",
-      "url": "https://geruestbauer24.eu",
+      "url": BASE_URL,
       "logo": {
         "@type": "ImageObject",
-        "url": "https://geruestbauer24.eu/placeholder-logo.png"
-      }
+        "url": `${BASE_URL}/placeholder-logo.png`,
+      },
     },
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": `https://geruestbauer24.eu/blog/${post.slug}`
+      "@id": `${BASE_URL}/blog/${post.slug}`,
     },
     "articleSection": post.category,
-    "keywords": tags.join(", ")
+    "keywords": tags.join(", "),
+    "wordCount": wordCount,
+    "timeRequired": `PT${readingTime}M`,
   }
 
-  const breadcrumbSchema = {
+  // BreadcrumbList şeması
+  const breadcrumbLd = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "Startseite", "item": "https://geruestbauer24.eu" },
-      { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://geruestbauer24.eu/blog" },
-      { "@type": "ListItem", "position": 3, "name": post.title, "item": `https://geruestbauer24.eu/blog/${post.slug}` }
-    ]
+      { "@type": "ListItem", "position": 1, "name": "Startseite", "item": BASE_URL },
+      { "@type": "ListItem", "position": 2, "name": "Blog", "item": `${BASE_URL}/blog` },
+      { "@type": "ListItem", "position": 3, "name": post.title },
+      // Son öğede "item" yok — mevcut sayfa
+    ],
   }
 
   return (
     <main className="min-h-screen bg-background">
-      {/* JSON-LD */}
       <script type="application/ld+json" suppressHydrationWarning dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }} />
-      <script type="application/ld+json" suppressHydrationWarning dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
+      <script type="application/ld+json" suppressHydrationWarning dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
 
       {/* Hero Image */}
       <section className="relative h-64 md:h-96 bg-slate-900">
         {post.image_url ? (
           <>
-            <Image
-              src={post.image_url}
-              alt={post.title}
-              fill
-              className="object-cover opacity-60"
-              priority
-            />
+            <Image src={post.image_url} alt={post.title} fill className="object-cover opacity-60" priority />
             <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/50 to-transparent" />
           </>
         ) : (
@@ -149,13 +196,9 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
         <div className="absolute bottom-0 left-0 right-0 p-4 md:p-8">
           <div className="container mx-auto max-w-4xl">
             {post.category && (
-              <Badge className="bg-orange-500 text-white hover:bg-orange-600 mb-4">
-                {post.category}
-              </Badge>
+              <Badge className="bg-orange-500 text-white hover:bg-orange-600 mb-4">{post.category}</Badge>
             )}
-            <h1 className="text-2xl md:text-4xl font-bold text-white mb-4 text-balance">
-              {post.title}
-            </h1>
+            <h1 className="text-2xl md:text-4xl font-bold text-white mb-4 text-balance">{post.title}</h1>
             <div className="flex flex-wrap items-center gap-4 text-slate-300 text-sm">
               <div className="flex items-center gap-2">
                 <Calendar className="h-4 w-4" />
@@ -173,11 +216,11 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
       {/* Breadcrumbs */}
       <section className="border-b border-border bg-muted/30">
         <div className="container mx-auto max-w-4xl px-4 py-3">
-          <nav className="flex items-center gap-2 text-sm text-muted-foreground">
+          <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm text-muted-foreground">
             <Link href="/" className="hover:text-orange-500 transition-colors">Startseite</Link>
-            <span>/</span>
+            <span aria-hidden="true">/</span>
             <Link href="/blog" className="hover:text-orange-500 transition-colors">Blog</Link>
-            <span>/</span>
+            <span aria-hidden="true">/</span>
             <span className="text-foreground font-medium truncate max-w-[200px]">{post.title}</span>
           </nav>
         </div>
@@ -186,101 +229,84 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
       {/* Content */}
       <section className="py-12 px-4">
         <div className="container mx-auto max-w-4xl">
-          <div className="flex flex-col lg:flex-row gap-8">
-            {/* Main Content */}
-            <article className="flex-1">
-              {/* Summary */}
-              <p className="text-lg text-muted-foreground mb-8 leading-relaxed border-l-4 border-orange-500 pl-4">
-                {post.summary}
-              </p>
+          <article>
+            <p className="text-lg text-muted-foreground mb-8 leading-relaxed border-l-4 border-orange-500 pl-4">
+              {post.summary}
+            </p>
+            <div
+              className="prose prose-slate dark:prose-invert max-w-none
+                prose-headings:text-foreground prose-headings:font-semibold
+                prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-4
+                prose-h3:text-xl prose-h3:mt-6 prose-h3:mb-3
+                prose-p:text-muted-foreground prose-p:leading-relaxed
+                prose-a:text-orange-500 prose-a:no-underline hover:prose-a:underline
+                prose-strong:text-foreground
+                prose-ul:text-muted-foreground prose-ol:text-muted-foreground
+                prose-li:marker:text-orange-500
+                prose-img:rounded-lg prose-img:shadow-md"
+              dangerouslySetInnerHTML={{ __html: post.content || "" }}
+            />
 
-              {/* Content */}
-              <div 
-                className="prose prose-slate dark:prose-invert max-w-none
-                  prose-headings:text-foreground prose-headings:font-semibold
-                  prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-4
-                  prose-h3:text-xl prose-h3:mt-6 prose-h3:mb-3
-                  prose-p:text-muted-foreground prose-p:leading-relaxed
-                  prose-a:text-orange-500 prose-a:no-underline hover:prose-a:underline
-                  prose-strong:text-foreground
-                  prose-ul:text-muted-foreground prose-ol:text-muted-foreground
-                  prose-li:marker:text-orange-500
-                  prose-img:rounded-lg prose-img:shadow-md"
-                dangerouslySetInnerHTML={{ __html: post.content || "" }}
-              />
-
-              {/* Tags */}
-              {tags.length > 0 && (
-                <div className="mt-8 pt-8 border-t border-border">
-                  <h3 className="text-sm font-medium text-muted-foreground mb-3">Tags</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {tags.map((tag: string) => (
-                      <Badge key={tag} variant="secondary" className="text-sm">
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Share */}
+            {tags.length > 0 && (
               <div className="mt-8 pt-8 border-t border-border">
-                <div className="flex items-center gap-4">
-                  <span className="text-sm font-medium text-muted-foreground">Teilen:</span>
-                  <Button variant="outline" size="sm" asChild>
-                    <a
-                      href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent(`https://geruestbauer24.eu/blog/${post.slug}`)}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <Share2 className="h-4 w-4 mr-2" />
-                      Twitter
-                    </a>
-                  </Button>
-                  <Button variant="outline" size="sm" asChild>
-                    <a
-                      href={`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(`https://geruestbauer24.eu/blog/${post.slug}`)}&title=${encodeURIComponent(post.title)}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <Share2 className="h-4 w-4 mr-2" />
-                      LinkedIn
-                    </a>
-                  </Button>
+                <h3 className="text-sm font-medium text-muted-foreground mb-3">Tags</h3>
+                <div className="flex flex-wrap gap-2">
+                  {tags.map((tag: string) => (
+                    <Badge key={tag} variant="secondary" className="text-sm">{tag}</Badge>
+                  ))}
                 </div>
               </div>
+            )}
 
-              {/* Back Link */}
-              <div className="mt-8">
-                <Button variant="outline" asChild>
-                  <Link href="/blog">
-                    <ArrowLeft className="h-4 w-4 mr-2" />
-                    Zurück zum Blog
-                  </Link>
+            <div className="mt-8 pt-8 border-t border-border">
+              <div className="flex items-center gap-4">
+                <span className="text-sm font-medium text-muted-foreground">Teilen:</span>
+                <Button variant="outline" size="sm" asChild>
+                  <a
+                    href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent(`${BASE_URL}/blog/${post.slug}`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Share2 className="h-4 w-4 mr-2" />
+                    Twitter
+                  </a>
+                </Button>
+                <Button variant="outline" size="sm" asChild>
+                  <a
+                    href={`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(`${BASE_URL}/blog/${post.slug}`)}&title=${encodeURIComponent(post.title)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Share2 className="h-4 w-4 mr-2" />
+                    LinkedIn
+                  </a>
                 </Button>
               </div>
-            </article>
-          </div>
+            </div>
+
+            <div className="mt-8">
+              <Button variant="outline" asChild>
+                <Link href="/blog">
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Zurück zum Blog
+                </Link>
+              </Button>
+            </div>
+          </article>
         </div>
       </section>
 
-      {/* Related Posts */}
       {relatedPosts && relatedPosts.length > 0 && (
         <section className="py-12 px-4 bg-muted/30 border-t border-border">
           <div className="container mx-auto max-w-6xl">
             <h2 className="text-2xl font-bold text-foreground mb-8">Ähnliche Beiträge</h2>
             <div className="grid md:grid-cols-3 gap-6">
-              {relatedPosts.map((relatedPost) => (
+              {relatedPosts.map((relatedPost: { id: string; title: string; slug: string; summary: string; image_url: string | null; published_at: string }) => (
                 <Link key={relatedPost.id} href={`/blog/${relatedPost.slug}`}>
                   <Card className="group h-full overflow-hidden border-border hover:border-orange-500/50 hover:shadow-lg transition-all duration-300">
                     <div className="relative h-40 bg-muted overflow-hidden">
                       {relatedPost.image_url ? (
-                        <Image
-                          src={relatedPost.image_url}
-                          alt={relatedPost.title}
-                          fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
+                        <Image src={relatedPost.image_url} alt={relatedPost.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-slate-800">
                           <span className="text-3xl font-bold text-orange-500">G24</span>
@@ -288,9 +314,7 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
                       )}
                     </div>
                     <CardContent className="p-4">
-                      <p className="text-xs text-muted-foreground mb-2">
-                        {formatDate(relatedPost.published_at)}
-                      </p>
+                      <p className="text-xs text-muted-foreground mb-2">{formatDate(relatedPost.published_at)}</p>
                       <h3 className="font-semibold text-foreground group-hover:text-orange-500 transition-colors line-clamp-2">
                         {relatedPost.title}
                       </h3>
