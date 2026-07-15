@@ -16,7 +16,6 @@ import Link from "next/link"
 import Image from "next/image"
 import { notFound } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
-import { createClient as createServerlessClient } from "@supabase/supabase-js"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -28,23 +27,8 @@ interface BlogDetailPageProps {
   params: Promise<{ slug: string }>
 }
 
-// Build zamanında tüm yayınlanmış blog yazılarını oluştur
-export async function generateStaticParams() {
-  const supabase = createServerlessClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
-
-  const { data: posts } = await supabase
-    .from("blog_posts")
-    .select("slug")
-    .eq("is_published", true)
-
-  return (posts || []).map((post: { slug: string }) => ({ slug: post.slug }))
-}
-
-// Blog yazıları haftada bir yenilenir
-export const revalidate = 604800
+// SSR erzwingen: Bei jedem Request dynamisch server-seitig gerendert (kein Static/ISR)
+export const dynamic = "force-dynamic"
 
 export async function generateMetadata({ params }: BlogDetailPageProps): Promise<Metadata> {
   const { slug } = await params

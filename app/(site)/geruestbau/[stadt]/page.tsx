@@ -14,7 +14,6 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
-import { createClient as createServerlessClient } from "@supabase/supabase-js"
 import { denormalizeSlug } from "@/lib/utils/slug"
 import { FirmenListClient } from "@/components/firmen-list-client"
 
@@ -25,26 +24,8 @@ type Props = {
   searchParams: Promise<{ page?: string }>
 }
 
-// Build zamanında bilinen tüm şehirleri oluştur (ISR ile güncellenir)
-export async function generateStaticParams() {
-  const supabase = createServerlessClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
-
-  const { data: firmen } = await supabase
-    .from("firmen")
-    .select("stadt_slug")
-    .eq("aktiv", true)
-    .not("stadt_slug", "is", null)
-
-  const uniqueStaedte = [...new Set((firmen || []).map((f: { stadt_slug: string }) => f.stadt_slug))]
-
-  return uniqueStaedte.map((stadtSlug) => ({ stadt: stadtSlug }))
-}
-
-// Sayfaları 1 saatte bir yenile
-export const revalidate = 3600
+// SSR erzwingen: Bei jedem Request dynamisch server-seitig gerendert (kein Static/ISR)
+export const dynamic = "force-dynamic"
 
 export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
   const { stadt } = await params

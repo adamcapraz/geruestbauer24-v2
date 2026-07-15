@@ -15,7 +15,6 @@ import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import dynamic from "next/dynamic"
 import { createClient } from "@/lib/supabase/server"
-import { createClient as createServerlessClient } from "@supabase/supabase-js"
 import { denormalizeSlug } from "@/lib/utils/slug"
 
 const FirmaDetailClient = dynamic(() => import("@/components/firma-detail-client"))
@@ -25,29 +24,6 @@ const BASE_URL = "https://geruestbauer24.eu"
 type Props = {
   params: Promise<{ stadt: string; firma: string }>
 }
-
-// Build zamanında tüm geçerli firma sayfalarını oluştur
-export async function generateStaticParams() {
-  const supabase = createServerlessClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
-
-  const { data: firmen } = await supabase
-    .from("firmen")
-    .select("slug, stadt_slug")
-    .eq("aktiv", true)
-    .not("slug", "is", null)
-    .not("stadt_slug", "is", null)
-
-  return (firmen || []).map((firma: { slug: string; stadt_slug: string }) => ({
-    stadt: firma.stadt_slug,
-    firma: firma.slug,
-  }))
-}
-
-// Firma sayfaları haftada bir yenilenir (fiyatlar, bilgiler güncellenir)
-export const revalidate = 604800
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { stadt, firma: firmaSlug } = await params

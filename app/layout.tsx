@@ -11,6 +11,10 @@ import "./globals.css"
 
 const inter = Inter({ subsets: ["latin"] })
 
+// SSR erzwingen: Alle Seiten werden bei jedem Request dynamisch server-seitig gerendert
+// (statisches Caching / ISR deaktiviert). Wird an alle untergeordneten Routen vererbt.
+export const dynamic = "force-dynamic"
+
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSettingsByKeys([
     "site_title",
