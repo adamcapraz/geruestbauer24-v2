@@ -66,13 +66,7 @@ export default function Header() {
                         Dashboard
                       </Link>
                     </DropdownMenuItem>
-                    {user.role === "owner" && (
-                      <DropdownMenuItem asChild>
-                        <Link href="/firma/dashboard/erstellen" className="cursor-pointer w-full">
-                          Firma eintragen
-                        </Link>
-                      </DropdownMenuItem>
-                    )}
+
                     <DropdownMenuItem asChild>
                       <Link href={user.role === "owner" ? "/firma/dashboard/anfragen" : "/kunde/dashboard/anfragen"} className="cursor-pointer w-full">
                         Meine Anfragen
@@ -140,12 +134,7 @@ export default function Header() {
                       <Link href={user.role === "owner" ? "/firma/dashboard" : "/kunde/dashboard"} className="flex items-center gap-2 py-2">
                         Dashboard
                       </Link>
-                      {user.role === "owner" && (
-                        <Link href="/firma/dashboard/erstellen" className="flex items-center gap-2 py-2">
-                          <Building2 size={18} />
-                          Firma eintragen
-                        </Link>
-                      )}
+
                       <Link href={user.role === "owner" ? "/firma/dashboard/anfragen" : "/kunde/dashboard/anfragen"} className="flex items-center gap-2 py-2">
                         Meine Anfragen
                       </Link>

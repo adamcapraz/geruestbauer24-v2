@@ -119,7 +119,7 @@ export default function FirmaProfilPage() {
           <h1 className="text-2xl font-bold text-foreground">Mein Profil</h1>
           <p className="text-muted-foreground mt-1">Verwalten Sie Ihre Firmenprofile</p>
         </div>
-        <Link href="/firma/dashboard/erstellen">
+        <Link href="/auth/registrieren">
           <Button>
             <Plus className="h-4 w-4 mr-2" />
             Neue Firma
@@ -142,7 +142,7 @@ export default function FirmaProfilPage() {
             <p className="text-muted-foreground mb-4">
               Tragen Sie Ihre Firma ein, um auf Gerüstbauer24 gefunden zu werden.
             </p>
-            <Link href="/firma/dashboard/erstellen">
+            <Link href="/auth/registrieren">
               <Button>
                 <Plus className="h-4 w-4 mr-2" />
                 Firma eintragen

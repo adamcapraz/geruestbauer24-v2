@@ -140,7 +140,7 @@ export default function FirmaDashboardOverview() {
             <p className="text-muted-foreground mb-4">
               Tragen Sie Ihre Firma ein, um Anfragen zu erhalten und Ihr Profil zu verwalten.
             </p>
-            <Link href="/firma/dashboard/erstellen">
+            <Link href="/auth/registrieren">
               <Button>
                 <Plus className="h-4 w-4 mr-2" />
                 Firma eintragen
