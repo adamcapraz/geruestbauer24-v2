@@ -6,7 +6,6 @@ import { Toaster } from "@/components/ui/toaster"
 import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/components/auth-provider"
 import { getSettingsByKeys } from "@/lib/settings"
-import { HeadScripts } from "@/components/head-scripts"
 import "./globals.css"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -60,11 +59,17 @@ export default async function RootLayout({
 
   return (
     <html lang="de" suppressHydrationWarning>
-      {gscVerification ? (
-        <head><meta name="google-site-verification" content={gscVerification} /></head>
-      ) : (
-        <head />
-      )}
+      <head
+        dangerouslySetInnerHTML={{
+          __html: [
+            gscVerification
+              ? `<meta name="google-site-verification" content="${gscVerification}" />`
+              : "",
+            analyticsSettings.custom_head_scripts ?? "",
+            analyticsSettings.google_adsense_code ?? "",
+          ].join("\n"),
+        }}
+      />
       <body className={`${inter.className} bg-background text-foreground min-h-screen`}>
         {gaId && (
           <>
@@ -100,12 +105,6 @@ export default async function RootLayout({
               />
             </noscript>
           </>
-        )}
-        {analyticsSettings.custom_head_scripts && (
-          <HeadScripts html={analyticsSettings.custom_head_scripts} />
-        )}
-        {analyticsSettings.google_adsense_code && (
-          <HeadScripts html={analyticsSettings.google_adsense_code} />
         )}
         <script
           type="application/ld+json"
