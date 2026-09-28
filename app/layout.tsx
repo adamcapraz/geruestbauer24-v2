@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import Script from "next/script"
 import { Toaster } from "@/components/ui/toaster"
+import AdSenseBodySlot from "@/components/adsense-body-slot"
 import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/components/auth-provider"
 import { getSettingsByKeys } from "@/lib/settings"
@@ -51,6 +52,7 @@ export default async function RootLayout({
     "google_search_console_verification",
     "custom_head_scripts",
     "google_adsense_code",
+    "google_adsense_body_code",
   ])
 
   const gaId = analyticsSettings.google_analytics_id
@@ -152,6 +154,7 @@ export default async function RootLayout({
             }),
           }}
         />
+        <AdSenseBodySlot code={analyticsSettings.google_adsense_body_code ?? ""} />
         <AuthProvider>
           <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
             {children}
