@@ -104,5 +104,8 @@ function getDefaultSettings(): SiteSettings {
     cookie_consent_enabled: "false",
     cookie_consent_text: "",
     widerrufsbelehrung_text: "",
+    google_adsense_id: "",
+    google_adsense_code: "",
+    custom_head_scripts: "",
   }
 }

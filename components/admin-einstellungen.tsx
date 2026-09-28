@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
 import {
-  Globe, BarChart3, Mail, Shield, Megaphone, Code,
+  Globe, BarChart3, Mail, Shield, Megaphone,
   Save, Loader2, CheckCircle, AlertCircle, ChevronDown, ChevronRight,
 } from "lucide-react"
 
@@ -86,18 +86,10 @@ const SETTINGS_GROUPS: SettingsGroup[] = [
     icon: <Megaphone className="h-5 w-5" />,
     keys: [
       "google_adsense_id",
-      "custom_head_scripts",
+      "google_adsense_code",
       "featured_firma_enabled",
       "featured_firma_id",
       "banner_ads_enabled",
-    ],
-  },
-  {
-    title: "Benutzerdefinierte Head-Skripte",
-    description: "Eigenen HTML/Script-Code in den <head>-Bereich der Website einbetten (z.B. AdSense, Tracking-Pixel, Verifizierungscodes)",
-    icon: <Code className="h-5 w-5" />,
-    keys: [
-      "custom_head_scripts",
     ],
   },
 ]
@@ -127,11 +119,11 @@ const LABELS: Record<string, string> = {
   cookie_consent_text: "Cookie-Banner Text",
   widerrufsbelehrung_text: "Widerrufsbelehrung",
   google_adsense_id: "Google AdSense Publisher ID",
+  google_adsense_code: "Google AdSense-Code (<head>)",
   custom_head_scripts: "Eigene Head-Scripts (HTML-Code f\u00fcr <head>)",
   featured_firma_enabled: "Gesponserte Firmen aktiviert",
   featured_firma_id: "Gesponserte Firma ID",
   banner_ads_enabled: "Banner-Werbung aktiviert",
-  custom_head_scripts: "Benutzerdefinierter Head-Code",
 }
 
 const PLACEHOLDERS: Record<string, string> = {
@@ -155,12 +147,12 @@ const PLACEHOLDERS: Record<string, string> = {
   impressum_registernummer: "HRB 123456",
   impressum_ust_id: "DE123456789",
   google_adsense_id: "ca-pub-XXXXXXXXXX",
+  google_adsense_code: '<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXX" crossorigin="anonymous"></script>',
   custom_head_scripts: '<script async src="https://example.com/script.js" crossorigin="anonymous"></script>',
   featured_firma_id: "Firma UUID",
-  custom_head_scripts: '<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXX" crossorigin="anonymous"></script>',
 }
 
-const TEXTAREA_KEYS = ["datenschutz_text", "cookie_consent_text", "widerrufsbelehrung_text", "meta_description", "custom_head_scripts"]
+const TEXTAREA_KEYS = ["datenschutz_text", "cookie_consent_text", "widerrufsbelehrung_text", "meta_description", "custom_head_scripts", "google_adsense_code"]
 const BOOLEAN_KEYS = ["cookie_consent_enabled", "featured_firma_enabled", "banner_ads_enabled"]
 
 export default function AdminEinstellungen() {
@@ -397,7 +389,7 @@ export default function AdminEinstellungen() {
                           value={value}
                           onChange={(e) => handleChange(key, e.target.value)}
                           placeholder={placeholder}
-                          rows={key === "datenschutz_text" || key === "widerrufsbelehrung_text" ? 8 : key === "custom_head_scripts" ? 6 : 3}
+                          rows={key === "datenschutz_text" || key === "widerrufsbelehrung_text" ? 8 : (key === "custom_head_scripts" || key === "google_adsense_code") ? 6 : 3}
                           className={isChanged ? "border-amber-500/50" : ""}
                         />
                       </div>
