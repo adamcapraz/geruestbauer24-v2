@@ -5,7 +5,6 @@ import Script from "next/script"
 import { Toaster } from "@/components/ui/toaster"
 import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/components/auth-provider"
-import { HeadScripts } from "@/components/head-scripts"
 import { getSettingsByKeys } from "@/lib/settings"
 import "./globals.css"
 
@@ -61,13 +60,15 @@ export default async function RootLayout({
   return (
     <html lang="de" suppressHydrationWarning>
       <head
+        suppressHydrationWarning
         dangerouslySetInnerHTML={{
           __html: [
             gscVerification
               ? `<meta name="google-site-verification" content="${gscVerification}" />`
               : "",
-
-          ].join("\n"),
+            analyticsSettings.custom_head_scripts ?? "",
+            analyticsSettings.google_adsense_code ?? "",
+          ].filter(Boolean).join("\n"),
         }}
       />
       <body className={`${inter.className} bg-background text-foreground min-h-screen`}>
@@ -150,12 +151,6 @@ export default async function RootLayout({
               }
             }),
           }}
-        />
-        <HeadScripts
-          html={[
-            analyticsSettings.custom_head_scripts ?? "",
-            analyticsSettings.google_adsense_code ?? "",
-          ].join("\n")}
         />
         <AuthProvider>
           <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
