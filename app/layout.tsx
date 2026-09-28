@@ -51,6 +51,7 @@ export default async function RootLayout({
     "google_tag_manager_id",
     "google_search_console_verification",
     "custom_head_scripts",
+    "google_adsense_code",
   ])
 
   const gaId = analyticsSettings.google_analytics_id
@@ -102,6 +103,9 @@ export default async function RootLayout({
         )}
         {analyticsSettings.custom_head_scripts && (
           <HeadScripts html={analyticsSettings.custom_head_scripts} />
+        )}
+        {analyticsSettings.google_adsense_code && (
+          <HeadScripts html={analyticsSettings.google_adsense_code} />
         )}
         <script
           type="application/ld+json"
