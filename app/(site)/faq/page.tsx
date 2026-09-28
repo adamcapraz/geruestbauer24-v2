@@ -75,7 +75,7 @@ const faqCategories = [
       {
         question: "Wie kann ich meine Firma bei Gerüstbauer24 eintragen?",
         answer: "Klicken Sie auf 'Firma eintragen' und füllen Sie das Registrierungsformular aus. Sie benötigen grundlegende Firmendaten, Leistungsbeschreibungen und optional Referenzfotos. Nach der Prüfung wird Ihr Profil freigeschaltet.",
-        link: { href: "/geruestbau/eintragen", text: "Jetzt Firma eintragen" }
+        link: { href: "/auth/registrieren", text: "Jetzt Firma eintragen" }
       },
       {
         question: "Was kostet der Firmeneintrag?",

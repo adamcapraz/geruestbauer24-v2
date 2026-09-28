@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
 import {
-  LayoutDashboard, MessageSquare, Settings, Building2, Plus,
+  LayoutDashboard, MessageSquare, Settings, Building2,
   LogOut, ChevronLeft, Menu, HardHat
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -16,7 +16,7 @@ const navItems = [
   { href: "/firma/dashboard", label: "Übersicht", icon: LayoutDashboard },
   { href: "/firma/dashboard/profil", label: "Mein Profil", icon: Building2 },
   { href: "/firma/dashboard/anfragen", label: "Anfragen", icon: MessageSquare },
-  { href: "/firma/dashboard/erstellen", label: "Firma eintragen", icon: Plus },
+
   { href: "/firma/dashboard/einstellungen", label: "Einstellungen", icon: Settings },
 ]
 
