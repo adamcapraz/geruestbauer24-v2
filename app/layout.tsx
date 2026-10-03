@@ -11,10 +11,12 @@ import "./globals.css"
 
 const inter = Inter({ subsets: ["latin"] })
 
-function getHeadScripts(code: string) {
-  return code
-    .match(/<script\b[^>]*>[\s\S]*?<\/script\s*>/gi)
-    ?.join("\n") ?? ""
+function getHeadScriptParts(code: string) {
+  const matches = code.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script\s*>/gi)
+  return Array.from(matches, ([, attributes, content], index) => {
+    const src = attributes.match(/\bsrc=["']([^"']+)["']/i)?.[1]
+    return { id: `custom-head-script-${index}`, src, content }
+  })
 }
 
 // SSR erzwingen: Alle Seiten werden bei jedem Request dynamisch server-seitig gerendert
@@ -64,21 +66,27 @@ export default async function RootLayout({
   const gaId = analyticsSettings.google_analytics_id
   const gtmId = analyticsSettings.google_tag_manager_id
   const gscVerification = analyticsSettings.google_search_console_verification
+  const headScriptParts = getHeadScriptParts(
+    `${analyticsSettings.custom_head_scripts ?? ""}\n${analyticsSettings.google_adsense_code ?? ""}`,
+  )
 
   return (
     <html lang="de" suppressHydrationWarning>
-      <head
-        suppressHydrationWarning
-        dangerouslySetInnerHTML={{
-          __html: [
-            gscVerification
-              ? `<meta name="google-site-verification" content="${gscVerification}" />`
-              : "",
-            analyticsSettings.custom_head_scripts ?? "",
-            getHeadScripts(analyticsSettings.google_adsense_code ?? ""),
-          ].filter(Boolean).join("\n"),
-        }}
-      />
+      <head>
+        {gscVerification && <meta name="google-site-verification" content={gscVerification} />}
+        {headScriptParts.map((script) =>
+          script.src ? (
+            <Script key={script.id} id={script.id} src={script.src} strategy="afterInteractive" />
+          ) : (
+            <Script
+              key={script.id}
+              id={script.id}
+              strategy="afterInteractive"
+              dangerouslySetInnerHTML={{ __html: script.content }}
+            />
+          ),
+        )}
+      </head>
       <body className={`${inter.className} bg-background text-foreground min-h-screen`}>
         {gaId && (
           <>
