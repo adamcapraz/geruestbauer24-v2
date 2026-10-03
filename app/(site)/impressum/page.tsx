@@ -24,6 +24,7 @@ export default async function ImpressumPage() {
   const geschaeftsfuehrer = s.impressum_geschaeftsfuehrer || "Max Mustermann"
   const registergericht = s.impressum_registergericht || "Amtsgericht Charlottenburg"
 
+
   // Split address into lines if it contains commas
   const adressLines = adresse.split(",").map((line: string) => line.trim())
 
