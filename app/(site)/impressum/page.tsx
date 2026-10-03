@@ -14,8 +14,6 @@ export default async function ImpressumPage() {
     "impressum_email",
     "impressum_geschaeftsfuehrer",
     "impressum_registergericht",
-    "impressum_registernummer",
-    "impressum_ust_id",
     "contact_email",
   ])
 
@@ -25,8 +23,7 @@ export default async function ImpressumPage() {
   const email = s.impressum_email || s.contact_email || "info@geruestbauer24.eu"
   const geschaeftsfuehrer = s.impressum_geschaeftsfuehrer || "Max Mustermann"
   const registergericht = s.impressum_registergericht || "Amtsgericht Charlottenburg"
-  const registernummer = s.impressum_registernummer || "HRB 12345 B"
-  const ustId = s.impressum_ust_id || "DE321654789"
+
 
   // Split address into lines if it contains commas
   const adressLines = adresse.split(",").map((line: string) => line.trim())
@@ -57,11 +54,7 @@ export default async function ImpressumPage() {
                 <p>Deutschland</p>
               </div>
               <div>
-                <p><span className="font-medium text-foreground">Handelsregister:</span> {registernummer}</p>
                 <p><span className="font-medium text-foreground">Registergericht:</span> {registergericht}</p>
-              </div>
-              <div>
-                <p><span className="font-medium text-foreground">Umsatzsteuer-ID:</span> {ustId}</p>
               </div>
             </CardContent>
           </Card>
