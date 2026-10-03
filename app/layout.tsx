@@ -11,6 +11,12 @@ import "./globals.css"
 
 const inter = Inter({ subsets: ["latin"] })
 
+function getHeadScripts(code: string) {
+  return code
+    .match(/<script\b[^>]*>[\s\S]*?<\/script\s*>/gi)
+    ?.join("\n") ?? ""
+}
+
 // SSR erzwingen: Alle Seiten werden bei jedem Request dynamisch server-seitig gerendert
 // (statisches Caching / ISR deaktiviert). Wird an alle untergeordneten Routen vererbt.
 export const dynamic = "force-dynamic"
@@ -69,7 +75,7 @@ export default async function RootLayout({
               ? `<meta name="google-site-verification" content="${gscVerification}" />`
               : "",
             analyticsSettings.custom_head_scripts ?? "",
-            analyticsSettings.google_adsense_code ?? "",
+            getHeadScripts(analyticsSettings.google_adsense_code ?? ""),
           ].filter(Boolean).join("\n"),
         }}
       />
