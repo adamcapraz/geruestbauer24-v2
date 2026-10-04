@@ -107,5 +107,15 @@ function getDefaultSettings(): SiteSettings {
     google_adsense_id: "",
     google_adsense_code: "",
     custom_head_scripts: "",
+    page_impressum_title: "",
+    page_impressum_content: "",
+    page_datenschutz_title: "",
+    page_datenschutz_content: "",
+    page_agb_title: "",
+    page_agb_content: "",
+    page_nutzungsbedingungen_title: "",
+    page_nutzungsbedingungen_content: "",
+    page_barrierefreiheit_title: "",
+    page_barrierefreiheit_content: "",
   }
 }
