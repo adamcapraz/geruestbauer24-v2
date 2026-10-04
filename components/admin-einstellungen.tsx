@@ -93,6 +93,19 @@ const SETTINGS_GROUPS: SettingsGroup[] = [
   },
 ]
 
+const EDITABLE_PAGES = [
+  { slug: "impressum", label: "Impressum" },
+  { slug: "datenschutz", label: "Datenschutz" },
+  { slug: "agb", label: "AGB" },
+  { slug: "nutzungsbedingungen", label: "Nutzungsbedingungen" },
+  { slug: "barrierefreiheit", label: "Barrierefreiheit" },
+] as const
+
+const PAGE_SETTING_KEYS = EDITABLE_PAGES.flatMap(({ slug }) => [
+  `page_${slug}_title`,
+  `page_${slug}_content`,
+])
+
 const LABELS: Record<string, string> = {
   site_title: "Website-Titel",
   meta_description: "Meta-Beschreibung",
@@ -122,6 +135,10 @@ const LABELS: Record<string, string> = {
   featured_firma_enabled: "Gesponserte Firmen aktiviert",
   featured_firma_id: "Gesponserte Firma ID",
   banner_ads_enabled: "Banner-Werbung aktiviert",
+  ...Object.fromEntries(EDITABLE_PAGES.flatMap(({ slug, label }) => [
+    [`page_${slug}_title`, `${label} – Seitentitel`],
+    [`page_${slug}_content`, `${label} – Inhalt`],
+  ])),
 }
 
 const PLACEHOLDERS: Record<string, string> = {
@@ -149,7 +166,7 @@ const PLACEHOLDERS: Record<string, string> = {
   featured_firma_id: "Firma UUID",
 }
 
-const TEXTAREA_KEYS = ["datenschutz_text", "cookie_consent_text", "widerrufsbelehrung_text", "meta_description", "custom_head_scripts", "google_adsense_code", "google_adsense_body_code"]
+const TEXTAREA_KEYS = ["datenschutz_text", "cookie_consent_text", "widerrufsbelehrung_text", "meta_description", "custom_head_scripts", "google_adsense_code", "google_adsense_body_code", ...EDITABLE_PAGES.map(({ slug }) => `page_${slug}_content`)]
 const BOOLEAN_KEYS = ["cookie_consent_enabled", "featured_firma_enabled", "banner_ads_enabled"]
 
 export default function AdminEinstellungen() {
@@ -214,6 +231,11 @@ export default function AdminEinstellungen() {
       if (editedValues[key] !== original) changed.push(key)
     }
     return changed
+  }
+
+  const clearPage = (slug: string) => {
+    handleChange(`page_${slug}_title`, "")
+    handleChange(`page_${slug}_content`, "")
   }
 
   const saveSettings = async () => {
@@ -305,6 +327,46 @@ export default function AdminEinstellungen() {
           {getChangedKeys().length} ungespeicherte Änderung(en) vorhanden.
         </div>
       )}
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Seiten verwalten</CardTitle>
+          <CardDescription>Erstellen und bearbeiten Sie die Inhalte der Rechtstexte. Eine Seite erscheint automatisch im Footer, sobald Titel und Inhalt gespeichert sind.</CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-6">
+          {EDITABLE_PAGES.map(({ slug, label }) => {
+            const titleKey = `page_${slug}_title`
+            const contentKey = `page_${slug}_content`
+            const titleValue = editedValues[titleKey] ?? ""
+            const contentValue = editedValues[contentKey] ?? ""
+            const pageChanged = titleValue !== (settings[titleKey]?.wert || "") || contentValue !== (settings[contentKey]?.wert || "")
+
+            return (
+              <div key={slug} className="rounded-lg border p-4">
+                <div className="mb-4 flex items-center justify-between gap-4">
+                  <div>
+                    <h3 className="font-semibold">{label}</h3>
+                    <p className="text-xs text-muted-foreground">/{slug}</p>
+                  </div>
+                  <Button type="button" variant="outline" size="sm" onClick={() => clearPage(slug)} disabled={!titleValue && !contentValue}>
+                    Seite löschen
+                  </Button>
+                </div>
+                <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor={titleKey}>Seitentitel</Label>
+                    <Input id={titleKey} value={titleValue} onChange={(event) => handleChange(titleKey, event.target.value)} placeholder={`${label} – Seitentitel`} className={pageChanged ? "border-amber-500/50" : ""} />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor={contentKey}>Inhalt</Label>
+                    <Textarea id={contentKey} value={contentValue} onChange={(event) => handleChange(contentKey, event.target.value)} placeholder={`Inhalt für ${label}`} rows={8} className={pageChanged ? "border-amber-500/50" : ""} />
+                  </div>
+                </div>
+              </div>
+            )
+          })}
+        </CardContent>
+      </Card>
 
       {/* Settings Groups */}
       {SETTINGS_GROUPS.map((group) => {

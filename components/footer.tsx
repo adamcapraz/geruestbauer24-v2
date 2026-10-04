@@ -8,12 +8,24 @@ export default async function Footer() {
     "contact_phone",
     "contact_address",
     "meta_description",
+    "page_impressum_title",
+    "page_datenschutz_title",
+    "page_agb_title",
+    "page_nutzungsbedingungen_title",
+    "page_barrierefreiheit_title",
   ])
 
   const email = settings.contact_email || "info@geruestbauer24.eu"
   const phone = settings.contact_phone || "+49 1639540595"
   const address = settings.contact_address || ""
   const description = settings.meta_description || "Finden Sie zuverlässige Gerüstbaufirmen in Ihrer Region. Geprüfte Unternehmen und echte Bewertungen."
+  const legalPages = [
+    { href: "/impressum", title: settings.page_impressum_title || "" },
+    { href: "/datenschutz", title: settings.page_datenschutz_title || "" },
+    { href: "/agb", title: settings.page_agb_title || "" },
+    { href: "/nutzungsbedingungen", title: settings.page_nutzungsbedingungen_title || "" },
+    { href: "/barrierefreiheit", title: settings.page_barrierefreiheit_title || "" },
+  ].filter((page) => page.title.trim())
 
   return (
     <footer className="bg-slate-900 text-white py-12">
@@ -62,16 +74,13 @@ export default async function Footer() {
           <div>
             <h3 className="text-lg font-bold mb-4">Rechtliches</h3>
             <ul className="space-y-2">
-              <li>
-                <Link href="/impressum" className="text-slate-300 hover:text-primary transition-colors">
-                  Impressum
-                </Link>
-              </li>
-              <li>
-                <Link href="/datenschutz" className="text-slate-300 hover:text-primary transition-colors">
-                  {"Datenschutzerklärung"}
-                </Link>
-              </li>
+              {legalPages.map((page) => (
+                <li key={page.href}>
+                  <Link href={page.href} className="text-slate-300 hover:text-primary transition-colors">
+                    {page.title}
+                  </Link>
+                </li>
+              ))}
               <li>
                 <Link href="/faq" className="text-slate-300 hover:text-primary transition-colors">
                   FAQ
