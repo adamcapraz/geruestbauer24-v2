@@ -59,16 +59,13 @@ export default async function RootLayout({
     "google_tag_manager_id",
     "google_search_console_verification",
     "custom_head_scripts",
-    "google_adsense_code",
     "google_adsense_body_code",
   ])
 
   const gaId = analyticsSettings.google_analytics_id
   const gtmId = analyticsSettings.google_tag_manager_id
   const gscVerification = analyticsSettings.google_search_console_verification
-  const headScriptParts = getHeadScriptParts(
-    `${analyticsSettings.custom_head_scripts ?? ""}\n${analyticsSettings.google_adsense_code ?? ""}`,
-  )
+  const headScriptParts = getHeadScriptParts(analyticsSettings.custom_head_scripts ?? "")
 
   return (
     <html lang="de" suppressHydrationWarning>
