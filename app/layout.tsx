@@ -50,6 +50,8 @@ export default async function RootLayout({
     "google_tag_manager_id",
     "google_adsense_body_code",
     "cookie_consent_enabled",
+    "cookie_consent_title",
+    "cookie_consent_text",
   ])
 
   return (
@@ -105,6 +107,8 @@ export default async function RootLayout({
         />
         <ConsentManager
           enabled={analyticsSettings.cookie_consent_enabled === "true"}
+          title={analyticsSettings.cookie_consent_title}
+          text={analyticsSettings.cookie_consent_text}
           analyticsId={analyticsSettings.google_analytics_id}
           tagManagerId={analyticsSettings.google_tag_manager_id}
           adsenseCode={analyticsSettings.google_adsense_body_code}
