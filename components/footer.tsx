@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { Phone, Mail, Clock, MapPin } from "lucide-react"
 import { getSettingsByKeys } from "@/lib/settings"
+import { CookieSettingsButton } from "@/components/consent-manager"
 
 export default async function Footer() {
   const settings = await getSettingsByKeys([
@@ -85,6 +86,9 @@ export default async function Footer() {
                 <Link href="/faq" className="text-slate-300 hover:text-primary transition-colors">
                   FAQ
                 </Link>
+              </li>
+              <li>
+                <CookieSettingsButton />
               </li>
             </ul>
           </div>

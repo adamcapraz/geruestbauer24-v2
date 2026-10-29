@@ -1,9 +1,8 @@
 import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
-import Script from "next/script"
 import { Toaster } from "@/components/ui/toaster"
-import AdSenseBodySlot from "@/components/adsense-body-slot"
+import ConsentManager from "@/components/consent-manager"
 import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/components/auth-provider"
 import { getSettingsByKeys } from "@/lib/settings"
@@ -50,56 +49,15 @@ export default async function RootLayout({
     "google_analytics_id",
     "google_tag_manager_id",
     "google_adsense_body_code",
+    "cookie_consent_enabled",
   ])
-
-  const gaId = analyticsSettings.google_analytics_id
-  const gtmId = analyticsSettings.google_tag_manager_id
 
   return (
     <html lang="de" suppressHydrationWarning>
       <head>
-        <link
-          rel="preload"
-          href="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8496445606931085"
-          as="script"
-        />
       </head>
       <body className={`${inter.className} bg-background text-foreground min-h-screen`}>
-        {gaId && (
-          <>
-            <Script
-              id="ga-script"
-              src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
-              strategy="lazyOnload"
-            />
-            <Script
-              id="ga-config"
-              strategy="lazyOnload"
-              dangerouslySetInnerHTML={{
-                __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${gaId}');`,
-              }}
-            />
-          </>
-        )}
-        {gtmId && (
-          <>
-            <Script
-              id="gtm-script"
-              strategy="lazyOnload"
-              dangerouslySetInnerHTML={{
-                __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${gtmId}');`,
-              }}
-            />
-            <noscript>
-              <iframe
-                src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
-                height="0"
-                width="0"
-                style={{ display: "none", visibility: "hidden" }}
-              />
-            </noscript>
-          </>
-        )}
+
         <script
           type="application/ld+json"
           suppressHydrationWarning
@@ -145,7 +103,12 @@ export default async function RootLayout({
             }),
           }}
         />
-        <AdSenseBodySlot code={analyticsSettings.google_adsense_body_code ?? ""} />
+        <ConsentManager
+          enabled={analyticsSettings.cookie_consent_enabled === "true"}
+          analyticsId={analyticsSettings.google_analytics_id}
+          tagManagerId={analyticsSettings.google_tag_manager_id}
+          adsenseCode={analyticsSettings.google_adsense_body_code}
+        />
         <AuthProvider>
           <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
             {children}
