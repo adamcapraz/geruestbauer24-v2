@@ -10,6 +10,8 @@ type ConsentState = {
 
 type ConsentManagerProps = {
   enabled: boolean
+  title?: string
+  text?: string
   analyticsId?: string
   tagManagerId?: string
   adsenseCode?: string
@@ -112,8 +114,8 @@ export default function ConsentManager(props: ConsentManagerProps) {
         <div className="fixed inset-x-0 bottom-0 z-50 border-t border-slate-200 bg-white p-4 shadow-2xl" role="dialog" aria-modal="true" aria-labelledby="cookie-title">
           <div className="mx-auto flex max-w-5xl flex-col gap-4">
             <div>
-              <h2 id="cookie-title" className="text-base font-semibold text-slate-900">Ihre Datenschutzeinstellungen</h2>
-              <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">Wir verwenden notwendige Technologien für den Betrieb der Website. Statistik- und Marketing-Technologien werden nur nach Ihrer Auswahl geladen. Ihre Auswahl können Sie jederzeit über „Cookie-Einstellungen“ ändern.</p>
+              <h2 id="cookie-title" className="text-base font-semibold text-slate-900">{props.title || "Ihre Datenschutzeinstellungen"}</h2>
+              <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">{props.text || "Wir verwenden notwendige Technologien für den Betrieb der Website. Statistik- und Marketing-Technologien werden nur nach Ihrer Auswahl geladen. Ihre Auswahl können Sie jederzeit über „Cookie-Einstellungen“ ändern."}</p>
             </div>
             {consent !== null && (
               <div className="grid gap-3 rounded-md border border-slate-200 bg-slate-50 p-3 text-sm sm:grid-cols-3">
