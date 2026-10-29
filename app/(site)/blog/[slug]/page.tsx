@@ -20,7 +20,6 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Calendar, Clock, ArrowLeft, ArrowRight, Share2 } from "lucide-react"
-import { renderBlogContent } from "@/lib/blog-content"
 
 const BASE_URL = "https://geruestbauer24.eu"
 
@@ -229,7 +228,7 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
                 prose-ul:text-muted-foreground prose-ol:text-muted-foreground
                 prose-li:marker:text-orange-500
                 prose-img:rounded-lg prose-img:shadow-md"
-              dangerouslySetInnerHTML={{ __html: renderBlogContent(post.content) }}
+              dangerouslySetInnerHTML={{ __html: post.content || "" }}
             />
 
             {tags.length > 0 && (
