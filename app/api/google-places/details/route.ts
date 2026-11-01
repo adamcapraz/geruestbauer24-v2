@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=name,formatted_address,formatted_phone_number,international_phone_number,website,rating,user_ratings_total,opening_hours,photos,reviews,url,address_components&language=de&key=${GOOGLE_PLACES_API_KEY}`
+    const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=name,formatted_address,formatted_phone_number,international_phone_number,website,rating,user_ratings_total,opening_hours,reviews,url,address_components&language=de&key=${GOOGLE_PLACES_API_KEY}`
     
     const detailsResponse = await fetch(detailsUrl)
     const detailsData = await detailsResponse.json()
@@ -45,11 +45,6 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Get photo URLs
-    const photos = place.photos?.slice(0, 5).map((photo: any) => 
-      `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=${photo.photo_reference}&key=${GOOGLE_PLACES_API_KEY}`
-    ) || []
-
     const result = {
       place_id: placeId,
       name: place.name,
@@ -62,7 +57,7 @@ export async function GET(request: NextRequest) {
       rating: place.rating,
       user_ratings_total: place.user_ratings_total,
       opening_hours: place.opening_hours?.weekday_text || [],
-      photos: photos,
+      photos: [],
       google_maps_url: place.url,
       reviews: place.reviews?.slice(0, 5).map((review: any) => ({
         author: review.author_name,

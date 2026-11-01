@@ -168,7 +168,6 @@ export default function FirmaDetailClient() {
   const displayWebsite = firma?.google_webseite || firma?.webseite
   const displayAddress = firma?.google_adresse || `${firma?.plz} ${firma?.stadt}, ${firma?.bundesland}`
   const displayOpeningHours = firma?.google_oeffnungszeiten || []
-  const displayPhotos = firma?.google_fotos || []
 
   const faqItems = firma ? [
     {
@@ -271,24 +270,6 @@ export default function FirmaDetailClient() {
         </div>
       </section>
 
-      {/* Google Photos Gallery */}
-      {displayPhotos.length > 0 && (
-        <section className="bg-slate-100 py-4">
-          <div className="container mx-auto px-4">
-            <div className="flex gap-2 overflow-x-auto pb-2">
-              {displayPhotos.map((photo, index) => (
-                <img
-                  key={index}
-                  src={photo || "/placeholder.svg"}
-                  alt={`${firma.name} Foto ${index + 1}`}
-                  className="h-32 w-48 object-cover rounded-lg flex-shrink-0"
-                  crossOrigin="anonymous"
-                />
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
 
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

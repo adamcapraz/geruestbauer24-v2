@@ -14,7 +14,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useToast } from "@/hooks/use-toast"
 import { Plus, Pencil, Trash2, Eye, Search, FileText, X, ImageIcon, ExternalLink } from "lucide-react"
-import { renderBlogContent } from "@/lib/blog-content"
 
 interface BlogPost {
   id: string
@@ -75,7 +74,6 @@ export default function AdminBlog() {
     is_published: false,
   })
   const [tagInput, setTagInput] = useState("")
-  const [contentMode, setContentMode] = useState<"visual" | "html">("html")
 
   const { toast } = useToast()
   const supabase = createClient()
@@ -541,32 +539,19 @@ export default function AdminBlog() {
               )}
             </div>
 
-            {/* Content editor */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between gap-3">
-                <Label htmlFor="content">Inhalt</Label>
-                <div className="flex gap-2">
-                  <Button type="button" size="sm" variant={contentMode === "visual" ? "default" : "outline"} onClick={() => setContentMode("visual")}>Vorschau</Button>
-                  <Button type="button" size="sm" variant={contentMode === "html" ? "default" : "outline"} onClick={() => setContentMode("html")}>HTML/Markdown</Button>
-                </div>
-              </div>
-              {contentMode === "html" ? (
-                <Textarea
-                  id="content"
-                  value={formData.content}
-                  onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
-                  placeholder="<h2>Überschrift</h2><p>Inhalt...</p>"
-                  rows={12}
-                  className="font-mono text-sm"
-                />
-              ) : (
-                <div
-                  className="prose prose-slate dark:prose-invert max-w-none min-h-48 rounded-md border p-4"
-                  dangerouslySetInnerHTML={{ __html: renderBlogContent(formData.content) }}
-                />
-              )}
+            {/* Content (HTML) */}
+            <div className="space-y-2">
+              <Label htmlFor="content">Inhalt (HTML)</Label>
+              <Textarea
+                id="content"
+                value={formData.content}
+                onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
+                placeholder="<h2>Überschrift</h2><p>Inhalt...</p>"
+                rows={12}
+                className="font-mono text-sm"
+              />
               <p className="text-xs text-muted-foreground">
-                HTML oder Markdown eingeben. Unterstützte HTML-Tags: h2, h3, p, ul, ol, li, a, strong, em, img, blockquote. h1 wird automatisch zu h2.
+                Unterstützte Tags: h2, h3, p, ul, ol, li, a, strong, em, img, blockquote
               </p>
             </div>
 
