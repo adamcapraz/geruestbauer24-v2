@@ -57,6 +57,11 @@ export default async function RootLayout({
   return (
     <html lang="de" suppressHydrationWarning>
       <head>
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8496445606931085"
+          crossOrigin="anonymous"
+        />
       </head>
       <body className={`${inter.className} bg-background text-foreground min-h-screen`}>
 
