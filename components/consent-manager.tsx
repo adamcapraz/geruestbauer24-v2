@@ -58,7 +58,12 @@ function activateOptionalServices(consent: ConsentState, props: ConsentManagerPr
     }
   }
 
-  if (consent.marketing && props.adsenseCode?.trim()) {
+  // AdSense only runs on verified production domains; preview URLs are not authorized.
+  if (
+    consent.marketing &&
+    props.adsenseCode?.trim() &&
+    ["geruestbauer24.eu", "www.geruestbauer24.eu"].includes(window.location.hostname)
+  ) {
     const container = document.getElementById("consent-adsense-container")
     if (!container || container.childElementCount > 0) return
     container.innerHTML = props.adsenseCode

@@ -45,6 +45,28 @@ function isSafeWebUrl(value: string): boolean {
   }
 }
 
+function isAdSenseScript(tag: HeadTag): boolean {
+  if (tag.tag !== "script") return false
+
+  const src = tag.attributes.src
+  return (
+    (typeof src === "string" && src.includes("googlesyndication.com/pagead/")) ||
+    /adsbygoogle/i.test(tag.content || "")
+  )
+}
+
+function isAdSenseLoader(tag: HeadTag): boolean {
+  const src = tag.attributes.src
+  if (typeof src !== "string") return false
+
+  try {
+    const url = new URL(src, "https://geruestbauer24.eu")
+    return url.hostname.endsWith("googlesyndication.com") && url.pathname === "/pagead/js/adsbygoogle.js"
+  } catch {
+    return false
+  }
+}
+
 function parseHeadTags(markup: string): HeadTag[] {
   const tags: HeadTag[] = []
   const tagPattern = /<script\b([^>]*)>([\s\S]*?)<\/script\s*>|<(meta|link)\b([^>]*)\/?>/gi
@@ -72,25 +94,33 @@ function parseHeadTags(markup: string): HeadTag[] {
   return tags
 }
 
-export function AdminHeadContent({ snippets }: { snippets: string[] }) {
+export function AdminHeadContent({
+  snippets,
+  allowAdSense,
+}: {
+  snippets: string[]
+  allowAdSense: boolean
+}) {
   const tags = parseHeadTags(snippets.filter(Boolean).join("\n"))
-  const seenScriptSources = new Set<string>()
+  const seenSources = new Set<string>()
 
   return (
     <>
       {tags.map((tag, index) => {
         if (tag.tag === "script") {
+          if (!allowAdSense && isAdSenseScript(tag)) return null
+
           const src = tag.attributes.src
-          if (typeof src === "string") {
-            if (seenScriptSources.has(src)) return null
-            seenScriptSources.add(src)
+          if (typeof src === "string" && src) {
+            const sourceKey = isAdSenseLoader(tag) ? "adsense-loader" : src
+            if (seenSources.has(sourceKey)) return null
+            seenSources.add(sourceKey)
           }
 
           return (
             <script
               key={`admin-head-script-${index}`}
               {...(tag.attributes as React.ScriptHTMLAttributes<HTMLScriptElement>)}
-              data-admin-head-snippet="true"
               dangerouslySetInnerHTML={src ? undefined : { __html: tag.content || "" }}
             />
           )
@@ -101,7 +131,6 @@ export function AdminHeadContent({ snippets }: { snippets: string[] }) {
             <meta
               key={`admin-head-meta-${index}`}
               {...(tag.attributes as React.MetaHTMLAttributes<HTMLMetaElement>)}
-              data-admin-head-snippet="true"
             />
           )
         }
@@ -110,7 +139,6 @@ export function AdminHeadContent({ snippets }: { snippets: string[] }) {
           <link
             key={`admin-head-link-${index}`}
             {...(tag.attributes as React.LinkHTMLAttributes<HTMLLinkElement>)}
-            data-admin-head-snippet="true"
           />
         )
       })}
