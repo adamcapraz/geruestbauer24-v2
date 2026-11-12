@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import { Toaster } from "@/components/ui/toaster"
 import ConsentManager from "@/components/consent-manager"
+import { AdminHeadContent } from "@/components/admin-head-content"
 import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/components/auth-provider"
 import { getSettingsByKeys } from "@/lib/settings"
@@ -48,6 +49,8 @@ export default async function RootLayout({
   const analyticsSettings = await getSettingsByKeys([
     "google_analytics_id",
     "google_tag_manager_id",
+    "google_adsense_code",
+    "custom_head_scripts",
     "google_adsense_body_code",
     "cookie_consent_enabled",
     "cookie_consent_title",
@@ -57,10 +60,8 @@ export default async function RootLayout({
   return (
     <html lang="de" suppressHydrationWarning>
       <head>
-        <script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8496445606931085"
-          crossOrigin="anonymous"
+        <AdminHeadContent
+          snippets={[analyticsSettings.google_adsense_code, analyticsSettings.custom_head_scripts]}
         />
       </head>
       <body className={`${inter.className} bg-background text-foreground min-h-screen`}>
