@@ -4,7 +4,7 @@ import { createContext, useContext, useState, useEffect, type ReactNode } from "
 import { useRouter, usePathname } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
 import { createClient } from "@/lib/supabase/client"
-import type { User as SupabaseUser } from "@supabase/supabase-js"
+import type { AuthChangeEvent, Session, User as SupabaseUser } from "@supabase/supabase-js"
 
 type User = {
   id: string
@@ -60,7 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // Listen for auth changes
     const supabase = createClient()
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event: AuthChangeEvent, session: Session | null) => {
       // Only set user on confirmed sign-in events, not on initial signup
       if (event === "SIGNED_IN" && session?.user?.email_confirmed_at) {
         setSupabaseUser(session.user)

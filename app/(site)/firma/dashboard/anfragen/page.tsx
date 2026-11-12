@@ -56,7 +56,7 @@ export default function FirmaAnfragenPage() {
       return
     }
 
-    const firmaIds = firmenData.map(f => f.id)
+    const firmaIds = firmenData.map((firma: { id: string }) => firma.id)
     const { data } = await supabase
       .from("anfragen")
       .select("*")

@@ -1,8 +1,10 @@
 import type React from "react"
 import type { Metadata } from "next"
+import { headers } from "next/headers"
 import { Inter } from "next/font/google"
 import { Toaster } from "@/components/ui/toaster"
 import ConsentManager from "@/components/consent-manager"
+import { AdminHeadContent } from "@/components/admin-head-content"
 import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/components/auth-provider"
 import { getSettingsByKeys } from "@/lib/settings"
@@ -32,6 +34,10 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     description,
     generator: "v0.app",
+    icons: {
+      icon: "/icon.svg",
+      apple: "/apple-icon.png",
+    },
     openGraph: {
       title,
       description,
@@ -45,18 +51,33 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  const analyticsSettings = await getSettingsByKeys([
-    "google_analytics_id",
-    "google_tag_manager_id",
-    "google_adsense_body_code",
-    "cookie_consent_enabled",
-    "cookie_consent_title",
-    "cookie_consent_text",
+  const [analyticsSettings, requestHeaders] = await Promise.all([
+    getSettingsByKeys([
+      "google_analytics_id",
+      "google_tag_manager_id",
+      "google_adsense_code",
+      "custom_head_scripts",
+      "google_adsense_body_code",
+      "cookie_consent_enabled",
+      "cookie_consent_title",
+      "cookie_consent_text",
+    ]),
+    headers(),
   ])
+  const requestHostname = (requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host") ?? "")
+    .split(",")[0]
+    .trim()
+    .split(":")[0]
+    .toLowerCase()
+  const allowAdSense = ["geruestbauer24.eu", "www.geruestbauer24.eu"].includes(requestHostname)
 
   return (
     <html lang="de" suppressHydrationWarning>
       <head>
+        <AdminHeadContent
+          snippets={[analyticsSettings.google_adsense_code, analyticsSettings.custom_head_scripts]}
+          allowAdSense={allowAdSense}
+        />
       </head>
       <body className={`${inter.className} bg-background text-foreground min-h-screen`}>
 

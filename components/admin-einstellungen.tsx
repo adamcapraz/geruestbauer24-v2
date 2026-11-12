@@ -86,6 +86,7 @@ const SETTINGS_GROUPS: SettingsGroup[] = [
     keys: [
       "google_adsense_id",
       "google_adsense_code",
+      "custom_head_scripts",
       "google_adsense_body_code",
       "featured_firma_enabled",
       "featured_firma_id",
@@ -413,7 +414,11 @@ export default function AdminEinstellungen() {
                 {group.keys.map((key) => {
                   const label = LABELS[key] || key
                   const placeholder = PLACEHOLDERS[key] || ""
-                  const description = settings[key]?.beschreibung || ""
+                  const description = settings[key]?.beschreibung || (
+                    key === "google_adsense_code" || key === "custom_head_scripts"
+                      ? "Wird serverseitig als HTML im Head ausgegeben und ist im Seitenquelltext sichtbar. Nur Head-kompatible Script- und Meta-Tags einfügen."
+                      : ""
+                  )
                   const value = editedValues[key] ?? ""
                   const isChanged = value !== (settings[key]?.wert || "")
 

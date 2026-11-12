@@ -48,7 +48,7 @@ export default function FirmaDashboardOverview() {
       if (firmenData) setFirmen(firmenData)
 
       if (firmenData && firmenData.length > 0) {
-        const firmaIds = firmenData.map(f => f.id)
+        const firmaIds = firmenData.map((firma: { id: string }) => firma.id)
         const { data: anfragenData } = await supabase
           .from("anfragen")
           .select("*")
