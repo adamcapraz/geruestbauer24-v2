@@ -4,49 +4,78 @@ import { SearchBar } from "@/components/search-bar"
 import Link from "next/link"
 import { Shield, Star, Zap, Building2, ArrowRight } from "lucide-react"
 import { FeaturedProperties } from "@/components/featured-properties"
+import { getDirectoryStats } from "@/lib/directory-stats"
+import { createSeoMetadata } from "@/lib/seo"
 
 export const dynamic = "force-dynamic"
 
-const homepageSchema = {
-  "@context": "https://schema.org",
-  "@type": "WebPage",
-  "name": "Gerüstbauer24 - Gerüstbaufirmen in Deutschland finden",
-  "description": "Finden Sie zuverlässige Gerüstbauer in Ihrer Region. Geprüfte Unternehmen, echte Bewertungen und schnelle Anfragen.",
-  "url": "https://geruestbauer24.eu",
-  "isPartOf": {
+const homepageSchemas = [
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Gerüstbauer24",
+    url: "https://geruestbauer24.eu",
+    logo: "https://geruestbauer24.eu/icon.svg",
+    email: "info@geruestbauer24.eu",
+    telephone: "+49 1639540595",
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: "Malortiestr. 18",
+      postalCode: "30419",
+      addressLocality: "Hannover",
+      addressCountry: "DE",
+    },
+    areaServed: { "@type": "Country", name: "Germany" },
+  },
+  {
+    "@context": "https://schema.org",
     "@type": "WebSite",
-    "name": "Gerüstbauer24",
-    "url": "https://geruestbauer24.eu"
-  },
-  "about": {
-    "@type": "Service",
-    "name": "Gerüstbau-Vermittlung",
-    "description": "Vermittlung von professionellen Gerüstbau-Dienstleistungen in ganz Deutschland",
-    "areaServed": {
-      "@type": "Country",
-      "name": "Germany"
+    name: "Gerüstbauer24",
+    url: "https://geruestbauer24.eu",
+    potentialAction: {
+      "@type": "SearchAction",
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate: "https://geruestbauer24.eu/geruestbau?q={search_term_string}",
+      },
+      "query-input": "required name=search_term_string",
     },
-    "provider": {
-      "@type": "Organization",
-      "name": "Gerüstbauer24",
-      "url": "https://geruestbauer24.eu"
-    },
-    "serviceType": ["Fassadengerüst", "Baugerüst", "Industriegerüst", "Hängegerüst", "Schutzgerüst", "Treppentürme"]
   },
-  "speakable": {
-    "@type": "SpeakableSpecification",
-    "cssSelector": ["h1", ".hero-description"]
-  }
-}
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    name: "Gerüstbauer finden & Angebote vergleichen | Gerüstbauer24",
+    description:
+      "Geprüfte Gerüstbaufirmen in ganz Deutschland: echte Bewertungen lesen, kostenlos mehrere Angebote anfordern und den passenden Gerüstbauer finden.",
+    url: "https://geruestbauer24.eu",
+    isPartOf: { "@type": "WebSite", name: "Gerüstbauer24", url: "https://geruestbauer24.eu" },
+    about: {
+      "@type": "Service",
+      name: "Gerüstbau-Vermittlung",
+      areaServed: { "@type": "Country", name: "Germany" },
+      provider: { "@type": "Organization", name: "Gerüstbauer24", url: "https://geruestbauer24.eu" },
+      serviceType: ["Fassadengerüst", "Baugerüst", "Industriegerüst", "Hängegerüst", "Schutzgerüst", "Treppentürme"],
+    },
+  },
+]
 
-export default function Home() {
+export const metadata = createSeoMetadata({
+  title: "Gerüstbauer finden & Angebote vergleichen | Gerüstbauer24",
+  description:
+    "Geprüfte Gerüstbaufirmen in ganz Deutschland: echte Bewertungen lesen, kostenlos mehrere Angebote anfordern und den passenden Gerüstbauer finden.",
+  canonicalPath: "/",
+})
+
+export default async function Home() {
+  const stats = await getDirectoryStats()
+
   return (
     <div className="flex flex-col">
       {/* JSON-LD Structured Data */}
       <script
         type="application/ld+json"
         suppressHydrationWarning
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(homepageSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(homepageSchemas) }}
       />
 
       {/* Hero Section */}
@@ -150,12 +179,12 @@ export default function Home() {
             Tragen Sie Ihr Unternehmen kostenlos ein und erreichen Sie neue Kunden in Ihrer Region.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/auth/registrieren">
+            <Link href="/fuer-firmen">
               <Button size="lg" variant="secondary" className="w-full sm:w-auto">
                 Firma kostenlos eintragen
               </Button>
             </Link>
-            <Link href="/ueber-uns">
+            <Link href="/fuer-firmen">
               <Button size="lg" variant="outline" className="w-full sm:w-auto bg-transparent text-primary-foreground border-primary-foreground hover:bg-primary-foreground/10">
                 Mehr erfahren
               </Button>
@@ -169,11 +198,11 @@ export default function Home() {
         <div className="container mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             <div>
-              <p className="text-4xl font-bold text-primary">4.627+</p>
-              <p className="text-muted-foreground mt-2">Geprüfte Firmen</p>
+              <p className="text-4xl font-bold text-primary">{stats.companyCount.toLocaleString("de-DE")}</p>
+              <p className="text-muted-foreground mt-2">Firmen im Verzeichnis</p>
             </div>
             <div>
-              <p className="text-4xl font-bold text-primary">283+</p>
+              <p className="text-4xl font-bold text-primary">{stats.requestCount.toLocaleString("de-DE")}</p>
               <p className="text-muted-foreground mt-2">Anfragen vermittelt</p>
             </div>
             <div>
@@ -181,7 +210,7 @@ export default function Home() {
               <p className="text-muted-foreground mt-2">Bundesländer</p>
             </div>
             <div>
-              <p className="text-4xl font-bold text-primary">4.7</p>
+              <p className="text-4xl font-bold text-primary">{stats.averageRating?.toLocaleString("de-DE", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) ?? "—"}</p>
               <p className="text-muted-foreground mt-2">Durchschnittliche Bewertung</p>
             </div>
           </div>

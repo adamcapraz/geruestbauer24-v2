@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Skeleton } from "@/components/ui/skeleton"
 import { Phone, Mail, MapPin, Clock, Building2, HelpCircle } from "lucide-react"
 import { getSettingsByKeys } from "@/lib/settings"
+import { createSeoMetadata } from "@/lib/seo"
 
 const KontaktForm = dynamic(
   () => import("@/components/kontakt-form").then(mod => ({ default: mod.KontaktForm })),
@@ -24,10 +25,12 @@ const KontaktForm = dynamic(
   }
 )
 
-export const metadata = {
-  title: "Kontakt - Gerüstbauer24",
-  description: "Nehmen Sie Kontakt mit uns auf. Wir helfen Ihnen gerne weiter.",
-}
+export const metadata = createSeoMetadata({
+  title: "Kontakt | Gerüstbauer24 – Hannover",
+  description:
+    "Fragen zu Ihrer Anfrage oder Ihrem Firmeneintrag? Erreichen Sie uns Mo–Fr 8–18 Uhr telefonisch oder per E-Mail. Wir helfen gern weiter.",
+  canonicalPath: "/kontakt",
+})
 
 export default async function KontaktPage() {
   const s = await getSettingsByKeys([
@@ -174,7 +177,7 @@ export default async function KontaktPage() {
                       {"Tragen Sie Ihr Unternehmen kostenlos ein und erreichen Sie neue Kunden."}
                     </p>
                     <Button asChild>
-                      <a href="/auth/registrieren">Firma eintragen</a>
+                      <a href="/fuer-firmen">Firma eintragen</a>
                     </Button>
                   </div>
                 </div>

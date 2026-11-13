@@ -16,9 +16,8 @@
 
 import type { Metadata } from "next"
 import { createClient } from "@/lib/supabase/server"
-import { FirmenListClient } from "@/components/firmen-list-client" // mevcut "use client" mantığınız buraya taşınır
-
-const BASE_URL = "https://geruestbauer24.eu"
+import { FirmenListClient } from "@/components/firmen-list-client"
+import { BASE_URL, createSeoMetadata } from "@/lib/seo"
 
 interface PageProps {
   searchParams: Promise<{ page?: string; stadt?: string; bundesland?: string }>
@@ -26,56 +25,15 @@ interface PageProps {
 
 export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
   const params = await searchParams
-  const page = parseInt(params.page || "1", 10)
-  const stadt = params.stadt || ""
-  const bundesland = params.bundesland || ""
+  const hasSearchFilters = Object.keys(params).length > 0
 
-  let title = "Gerüstbaufirmen in Deutschland finden | Gerüstbauer24"
-  let description =
-    "Finden Sie geprüfte Gerüstbaufirmen in ganz Deutschland. Bewertungen lesen, Angebote vergleichen und den besten Gerüstbauer in Ihrer Region finden."
-
-  if (stadt) {
-    title = `Gerüstbauer in ${stadt} | Gerüstbauer24`
-    description = `Geprüfte Gerüstbaufirmen in ${stadt}. Bewertungen lesen und unverbindliche Angebote anfordern.`
-  } else if (bundesland) {
-    title = `Gerüstbauer in ${bundesland} | Gerüstbauer24`
-    description = `Geprüfte Gerüstbaufirmen in ${bundesland}. Bewertungen lesen und unverbindliche Angebote anfordern.`
-  }
-
-  const pageTitle = page > 1 ? `${title} – Seite ${page}` : title
-  const canonicalUrl =
-    page > 1
-      ? `${BASE_URL}/geruestbau?page=${page}`
-      : `${BASE_URL}/geruestbau`
-
-  return {
-    title: pageTitle,
-    description,
-    alternates: {
-      canonical: canonicalUrl,
-    },
-    openGraph: {
-      title: pageTitle,
-      description,
-      type: "website",
-      locale: "de_DE",
-      siteName: "Gerüstbauer24",
-      images: [
-        {
-          url: `${BASE_URL}/api/og?title=${encodeURIComponent("Gerüstbaufirmen in Deutschland")}&subtitle=${encodeURIComponent("Geprüfte Unternehmen, echte Bewertungen")}&type=city`,
-          width: 1200,
-          height: 630,
-          alt: "Gerüstbaufirmen in Deutschland – Gerüstbauer24",
-        },
-      ],
-    },
-    twitter: {
-      card: "summary_large_image",
-      images: [
-        `${BASE_URL}/api/og?title=${encodeURIComponent("Gerüstbaufirmen in Deutschland")}&type=city`,
-      ],
-    },
-  }
+  return createSeoMetadata({
+    title: "Gerüstbaufirmen in Deutschland finden | Gerüstbauer24",
+    description:
+      "Verzeichnis geprüfter Gerüstbaufirmen: nach Bundesland, Stadt und Leistung filtern, Bewertungen vergleichen und unverbindlich Angebote anfragen.",
+    canonicalPath: "/geruestbau",
+    ...(hasSearchFilters ? { robots: { index: false, follow: true } } : {}),
+  })
 }
 
 export default async function GeruestbauPage({ searchParams }: PageProps) {
@@ -83,10 +41,15 @@ export default async function GeruestbauPage({ searchParams }: PageProps) {
 
   // Server-side'da ilk sayfa verisi çekilir (SEO için kritik — Googlebot bunu görür)
   const supabase = await createClient()
-  const { data: firmen } = await supabase
+  let query = supabase
     .from("firmen")
-    .select("id, name, slug, stadt, stadt_slug, bundesland, bewertung, anzahl_bewertungen, geprueft, leistungen, google_bewertung, google_anzahl_bewertungen")
+    .select("id, name, slug, stadt, stadt_slug, bundesland, bewertung, anzahl_bewertungen, geprueft, leistungen, google_bewertung, google_anzahl_bewertungen", { count: "exact" })
     .eq("aktiv", true)
+
+  if (params.stadt) query = query.ilike("stadt", `%${params.stadt}%`)
+  if (params.bundesland) query = query.ilike("bundesland", `%${params.bundesland}%`)
+
+  const { data: firmen, count } = await query
     .order("google_bewertung", { ascending: false, nullsFirst: false })
     .limit(10)
 
@@ -97,7 +60,7 @@ export default async function GeruestbauPage({ searchParams }: PageProps) {
     "name": "Gerüstbaufirmen in Deutschland",
     "description": "Geprüfte Gerüstbaufirmen in ganz Deutschland",
     "url": `${BASE_URL}/geruestbau`,
-    "numberOfItems": firmen?.length || 0,
+    "numberOfItems": count ?? firmen?.length ?? 0,
     "itemListElement": (firmen || []).map((firma: { name: string; slug: string; stadt: string; stadt_slug: string; bundesland: string; bewertung: number; anzahl_bewertungen: number; google_bewertung: number | null; google_anzahl_bewertungen: number | null }, index: number) => ({
       "@type": "ListItem",
       "position": index + 1,
@@ -111,14 +74,15 @@ export default async function GeruestbauPage({ searchParams }: PageProps) {
           "addressRegion": firma.bundesland,
           "addressCountry": "DE",
         },
-        ...(firma.google_bewertung || firma.bewertung
+        ...((firma.google_bewertung ?? firma.bewertung) != null &&
+        (firma.google_anzahl_bewertungen ?? firma.anzahl_bewertungen ?? 0) > 0
           ? {
-              "aggregateRating": {
+              aggregateRating: {
                 "@type": "AggregateRating",
-                "ratingValue": (firma.google_bewertung || firma.bewertung).toFixed(1),
-                "reviewCount": firma.google_anzahl_bewertungen || firma.anzahl_bewertungen || 1,
-                "bestRating": "5",
-                "worstRating": "1",
+                ratingValue: Number(firma.google_bewertung ?? firma.bewertung).toFixed(1),
+                reviewCount: firma.google_anzahl_bewertungen ?? firma.anzahl_bewertungen,
+                bestRating: "5",
+                worstRating: "1",
               },
             }
           : {}),
@@ -137,7 +101,7 @@ export default async function GeruestbauPage({ searchParams }: PageProps) {
         Tüm useState/useEffect/filter mantığı oraya taşınır.
         initialData prop'u ile server'dan veri geçirilir.
       */}
-      <FirmenListClient initialData={firmen || []} searchParams={params} />
+      <FirmenListClient initialData={firmen || []} initialCount={count ?? 0} searchParams={params} />
     </>
   )
 }

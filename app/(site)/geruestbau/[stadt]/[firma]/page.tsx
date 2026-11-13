@@ -13,13 +13,10 @@
 
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
-import dynamic from "next/dynamic"
+import FirmaDetailClient from "@/components/firma-detail-client"
 import { createClient } from "@/lib/supabase/server"
 import { denormalizeSlug } from "@/lib/utils/slug"
-
-const FirmaDetailClient = dynamic(() => import("@/components/firma-detail-client"))
-
-const BASE_URL = "https://geruestbauer24.eu"
+import { BASE_URL, createSeoMetadata, fitSeoText } from "@/lib/seo"
 
 type Props = {
   params: Promise<{ stadt: string; firma: string }>
@@ -28,74 +25,42 @@ type Props = {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { stadt, firma: firmaSlug } = await params
   const supabase = await createClient()
-
   const { data: firma } = await supabase
     .from("firmen")
-    .select("name, stadt, bundesland, beschreibung, leistungen, google_bewertung, google_anzahl_bewertungen")
+    .select("name, stadt, leistungen, google_bewertung, google_anzahl_bewertungen, bewertung, anzahl_bewertungen")
     .eq("stadt_slug", stadt)
     .eq("slug", firmaSlug)
     .eq("aktiv", true)
-    .single()
+    .maybeSingle()
 
-  // Firma bulunamadıysa genel meta ver (notFound() page.tsx'de çağrılır)
   if (!firma) {
     const stadtName = denormalizeSlug(stadt)
-    return {
-      title: `Gerüstbauer in ${stadtName} | Gerüstbauer24`,
-      description: `Finden Sie professionelle Gerüstbauer in ${stadtName}. Jetzt Angebote vergleichen auf Gerüstbauer24!`,
-    }
+    return createSeoMetadata({
+      title: `Gerüstbau in ${stadtName} | Gerüstbauer24`,
+      description: `Finden Sie Gerüstbaufirmen in ${stadtName} und vergleichen Sie regionale Anbieter.`,
+      canonicalPath: `/geruestbau/${stadt}/${firmaSlug}`,
+    })
   }
 
-  const leistungenText =
-    firma.leistungen?.slice(0, 3).join(", ") || "Fassadengerüst, Baugerüst, Industriegerüst"
+  const services = firma.leistungen?.slice(0, 2) ?? []
+  const rating = firma.google_bewertung ?? firma.bewertung
+  const reviewCount = firma.google_anzahl_bewertungen ?? firma.anzahl_bewertungen ?? 0
+  const ratingText = rating !== null && rating !== undefined && reviewCount > 0
+    ? ` ★ ${Number(rating).toFixed(1)}/5 aus ${reviewCount} Bewertungen.`
+    : ""
+  const serviceText = services.length ? `: ${services.join(", ")}${firma.leistungen?.length > 2 ? " & mehr" : ""}.` : "."
+  const descriptionWithServices = `${firma.name} in ${firma.stadt}${serviceText}${ratingText} Kontaktdaten ansehen und unverbindlich Angebot anfragen.`
+  const descriptionWithoutServices = `${firma.name} in ${firma.stadt}.${ratingText} Kontaktdaten ansehen und unverbindlich Angebot anfragen.`
+  const description = descriptionWithServices.length <= 155
+    ? descriptionWithServices
+    : descriptionWithoutServices
 
-  const title = `${firma.name} – Gerüstbauer in ${firma.stadt} | Gerüstbauer24`
-  const description = `${firma.name} in ${firma.stadt} (${firma.bundesland}): Professioneller Gerüstbau – ${leistungenText}. Jetzt unverbindlich anfragen & Bewertungen lesen!`
-
-  const ogImageUrl = `${BASE_URL}/api/og?title=${encodeURIComponent(firma.name)}&subtitle=${encodeURIComponent(`Gerüstbauer in ${firma.stadt} · ${leistungenText}`)}&type=firma`
-
-  return {
-    title,
-    description,
-    keywords: [
-      firma.name,
-      "Gerüstbau",
-      "Gerüstbauer",
-      firma.stadt,
-      firma.bundesland,
-      ...leistungenText.split(", "),
-      "Gerüst mieten",
-      "Gerüstbau Angebot",
-    ],
-    alternates: {
-      // Absolute URL (relative URL metadataBase olmadan sosyal platformlarda çalışmaz)
-      canonical: `${BASE_URL}/geruestbau/${stadt}/${firmaSlug}`,
-    },
-    openGraph: {
-      title: `${firma.name} | Gerüstbauer in ${firma.stadt}`,
-      description,
-      type: "website",
-      locale: "de_DE",
-      siteName: "Gerüstbauer24",
-      images: [
-        {
-          url: ogImageUrl,
-          width: 1200,
-          height: 630,
-          type: "image/png",
-          alt: `${firma.name} – Gerüstbauer in ${firma.stadt}`,
-        },
-      ],
-    },
-    twitter: {
-      card: "summary_large_image",
-      images: [ogImageUrl],
-    },
-    robots: {
-      index: true,
-      follow: true,
-    },
-  }
+  return createSeoMetadata({
+    title: `${firma.name} – Gerüstbau in ${firma.stadt} | Bewertungen`,
+    description: fitSeoText(description, 155),
+    canonicalPath: `/geruestbau/${stadt}/${firmaSlug}`,
+    image: `${BASE_URL}/api/og?title=${encodeURIComponent(firma.name)}&subtitle=${encodeURIComponent(`Gerüstbau in ${firma.stadt}`)}&type=firma`,
+  })
 }
 
 export default async function FirmaDetailPage({ params }: Props) {
@@ -115,34 +80,34 @@ export default async function FirmaDetailPage({ params }: Props) {
     notFound()
   }
 
-  const bewertung = firma.google_bewertung || firma.bewertung
-  const anzahlBewertungen = firma.google_anzahl_bewertungen || firma.anzahl_bewertungen
+  const bewertung = firma.google_bewertung ?? firma.bewertung
+  const anzahlBewertungen = firma.google_anzahl_bewertungen ?? firma.anzahl_bewertungen ?? 0
+  const profileUrl = `${BASE_URL}/geruestbau/${stadt}/${firmaSlug}`
 
-  // JSON-LD: LocalBusiness (zengin sonuçlar için)
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "HomeAndConstructionBusiness",
+    "@type": "LocalBusiness",
     "name": firma.name,
-    "url": `${BASE_URL}/geruestbau/${stadt}/${firmaSlug}`,
+    "url": profileUrl,
     "description": firma.beschreibung || `${firma.name} – professionelle Gerüstbauarbeiten in ${firma.stadt}`,
     "address": {
       "@type": "PostalAddress",
       "addressLocality": firma.stadt,
-      "addressRegion": firma.bundesland,
-      "addressCountry": "DE",
-      ...(firma.plz ? { "postalCode": firma.plz } : {}),
-      ...(firma.strasse ? { "streetAddress": firma.strasse } : {}),
+      addressRegion: firma.bundesland,
+      addressCountry: "DE",
+      ...(firma.plz ? { postalCode: firma.plz } : {}),
+      ...(firma.adresse ? { streetAddress: firma.adresse } : {}),
     },
-    ...(firma.telefon ? { "telephone": firma.telefon } : {}),
-    ...(firma.website ? { "sameAs": [firma.website] } : {}),
-    ...(bewertung && anzahlBewertungen
+    ...(firma.telefon || firma.google_telefon ? { telephone: firma.telefon || firma.google_telefon } : {}),
+    ...(firma.webseite || firma.google_webseite ? { sameAs: [firma.webseite || firma.google_webseite] } : {}),
+    ...(bewertung !== null && bewertung !== undefined && anzahlBewertungen > 0
       ? {
-          "aggregateRating": {
+          aggregateRating: {
             "@type": "AggregateRating",
-            "ratingValue": bewertung.toFixed(1),
-            "reviewCount": anzahlBewertungen,
-            "bestRating": "5",
-            "worstRating": "1",
+            ratingValue: Number(bewertung).toFixed(1),
+            reviewCount: anzahlBewertungen,
+            bestRating: "5",
+            worstRating: "1",
           },
         }
       : {}),
@@ -210,7 +175,7 @@ export default async function FirmaDetailPage({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
       />
-      <FirmaDetailClient />
+      <FirmaDetailClient initialFirma={firma} />
     </>
   )
 }

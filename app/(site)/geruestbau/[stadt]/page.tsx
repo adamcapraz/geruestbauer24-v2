@@ -16,8 +16,7 @@ import { notFound } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { denormalizeSlug } from "@/lib/utils/slug"
 import { FirmenListClient } from "@/components/firmen-list-client"
-
-const BASE_URL = "https://geruestbauer24.eu"
+import { BASE_URL, createSeoMetadata } from "@/lib/seo"
 
 type Props = {
   params: Promise<{ stadt: string }>
@@ -29,51 +28,29 @@ export const dynamic = "force-dynamic"
 
 export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
   const { stadt } = await params
-  const { page } = await searchParams
-  const currentPage = parseInt(page || "1", 10)
+  const filters = await searchParams
+  const supabase = await createClient()
+  const { data: cityData, count } = await supabase
+    .from("firmen")
+    .select("stadt", { count: "exact" })
+    .eq("aktiv", true)
+    .eq("stadt_slug", stadt)
+    .limit(1)
+    .maybeSingle()
 
-  const stadtName = denormalizeSlug(stadt)
+  const stadtName = cityData?.stadt || denormalizeSlug(stadt)
+  const companyCount = count ?? 0
+  const description =
+    companyCount < 2
+      ? `Gerüstbaufirmen in ${stadtName} im Vergleich: Bewertungen, Leistungen & Kontaktdaten. Jetzt kostenlos Angebote für Fassaden- und Baugerüste anfragen.`
+      : `${companyCount.toLocaleString("de-DE")} Gerüstbaufirmen in ${stadtName} im Vergleich: Bewertungen, Leistungen & Kontaktdaten. Jetzt kostenlos Angebote für Fassaden- und Baugerüste anfragen.`
 
-  const title =
-    currentPage > 1
-      ? `Gerüstbauer in ${stadtName} – Seite ${currentPage} | Gerüstbauer24`
-      : `Gerüstbauer in ${stadtName} finden | Gerüstbauer24`
-
-  const description = `Geprüfte Gerüstbaufirmen in ${stadtName}. Echte Bewertungen lesen und unverbindliche Angebote anfordern – kostenlos auf Gerüstbauer24.`
-
-  const canonicalUrl =
-    currentPage > 1
-      ? `${BASE_URL}/geruestbau/${stadt}?page=${currentPage}`
-      : `${BASE_URL}/geruestbau/${stadt}`
-
-  const ogImageUrl = `${BASE_URL}/api/og?title=${encodeURIComponent(`Gerüstbauer in ${stadtName}`)}&subtitle=${encodeURIComponent("Geprüfte Firmen, echte Bewertungen")}&type=city`
-
-  return {
-    title,
+  return createSeoMetadata({
+    title: `Gerüstbau ${stadtName}: Gerüstbauer vergleichen`,
     description,
-    alternates: {
-      canonical: canonicalUrl,
-    },
-    openGraph: {
-      title,
-      description,
-      type: "website",
-      locale: "de_DE",
-      siteName: "Gerüstbauer24",
-      images: [
-        {
-          url: ogImageUrl,
-          width: 1200,
-          height: 630,
-          alt: `Gerüstbauer in ${stadtName}`,
-        },
-      ],
-    },
-    twitter: {
-      card: "summary_large_image",
-      images: [ogImageUrl],
-    },
-  }
+    canonicalPath: `/geruestbau/${stadt}`,
+    ...(Object.keys(filters).length > 0 ? { robots: { index: false, follow: true } } : {}),
+  })
 }
 
 export default async function StadtPage({ params, searchParams }: Props) {
@@ -84,10 +61,11 @@ export default async function StadtPage({ params, searchParams }: Props) {
   const supabase = await createClient()
 
   // Şehirde firma var mı kontrol et
-  const { data: firmen, error } = await supabase
+  const { data: firmen, error, count } = await supabase
     .from("firmen")
     .select(
-      "id, name, slug, stadt, stadt_slug, bundesland, bewertung, anzahl_bewertungen, geprueft, leistungen, google_bewertung, google_anzahl_bewertungen"
+      "id, name, slug, stadt, stadt_slug, bundesland, bewertung, anzahl_bewertungen, geprueft, leistungen, google_bewertung, google_anzahl_bewertungen",
+      { count: "exact" },
     )
     .eq("aktiv", true)
     .eq("stadt_slug", stadt)
@@ -108,7 +86,7 @@ export default async function StadtPage({ params, searchParams }: Props) {
     "name": `Gerüstbaufirmen in ${stadtName}`,
     "description": `Geprüfte Gerüstbaufirmen in ${stadtName}, ${bundesland}`,
     "url": `${BASE_URL}/geruestbau/${stadt}`,
-    "numberOfItems": firmen.length,
+    "numberOfItems": count ?? firmen.length,
     "itemListElement": firmen.slice(0, 10).map((firma: { name: string; slug: string; stadt: string; stadt_slug: string; bundesland: string; bewertung: number; anzahl_bewertungen: number; google_bewertung: number | null; google_anzahl_bewertungen: number | null }, index: number) => ({
       "@type": "ListItem",
       "position": index + 1,
@@ -122,14 +100,15 @@ export default async function StadtPage({ params, searchParams }: Props) {
           "addressRegion": firma.bundesland,
           "addressCountry": "DE",
         },
-        ...(firma.google_bewertung || firma.bewertung
+        ...((firma.google_bewertung ?? firma.bewertung) != null &&
+        (firma.google_anzahl_bewertungen ?? firma.anzahl_bewertungen ?? 0) > 0
           ? {
-              "aggregateRating": {
+              aggregateRating: {
                 "@type": "AggregateRating",
-                "ratingValue": (firma.google_bewertung || firma.bewertung).toFixed(1),
-                "reviewCount": firma.google_anzahl_bewertungen || firma.anzahl_bewertungen || 1,
-                "bestRating": "5",
-                "worstRating": "1",
+                ratingValue: Number(firma.google_bewertung ?? firma.bewertung).toFixed(1),
+                reviewCount: firma.google_anzahl_bewertungen ?? firma.anzahl_bewertungen,
+                bestRating: "5",
+                worstRating: "1",
               },
             }
           : {}),
@@ -175,7 +154,9 @@ export default async function StadtPage({ params, searchParams }: Props) {
       />
       <FirmenListClient
         initialData={firmen}
+        initialCount={count ?? firmen.length}
         stadtName={stadtName}
+        stadtSlug={stadt}
         searchParams={{ page: String(currentPage) }}
       />
     </>
