@@ -7,12 +7,14 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion"
 import { MessageCircle, Search, Building2, ArrowRight } from "lucide-react"
+import { createSeoMetadata } from "@/lib/seo"
 
-export const metadata = {
-  title: "FAQ - Gerüstbauer24 | Häufig gestellte Fragen zum Gerüstbau",
-  description: "Antworten auf häufig gestellte Fragen rund um Gerüstbau, Kosten, Genehmigungen und unsere Plattform. Finden Sie geprüfte Gerüstbauer in Ihrer Nähe.",
-  keywords: "Gerüstbau FAQ, Gerüst Kosten, Gerüstbauer finden, Gerüst mieten, Fassadengerüst",
-}
+export const metadata = createSeoMetadata({
+  title: "Häufige Fragen zu Gerüstbau & Anfragen | Gerüstbauer24",
+  description:
+    "Antworten zu Kosten, Ablauf, Standzeit und Genehmigung beim Gerüstbau sowie zur Nutzung von Gerüstbauer24 – für Kunden und Gerüstbaufirmen.",
+  canonicalPath: "/faq",
+})
 
 const faqCategories = [
   {
@@ -75,7 +77,7 @@ const faqCategories = [
       {
         question: "Wie kann ich meine Firma bei Gerüstbauer24 eintragen?",
         answer: "Klicken Sie auf 'Firma eintragen' und füllen Sie das Registrierungsformular aus. Sie benötigen grundlegende Firmendaten, Leistungsbeschreibungen und optional Referenzfotos. Nach der Prüfung wird Ihr Profil freigeschaltet.",
-        link: { href: "/geruestbau/eintragen", text: "Jetzt Firma eintragen" }
+        link: { href: "/fuer-firmen", text: "Jetzt Firma eintragen" }
       },
       {
         question: "Was kostet der Firmeneintrag?",

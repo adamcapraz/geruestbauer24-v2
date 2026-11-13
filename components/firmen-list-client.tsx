@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import useSWR from "swr"
 import Link from "next/link"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -48,11 +49,10 @@ const alleLeistungen = [
 ]
 
 interface FirmenListClientProps {
-  // Server'dan gelen ilk veri (Googlebot bunu görür)
   initialData: Firma[]
-  // Şehir sayfası için başlık
+  initialCount?: number
   stadtName?: string
-  // URL parametreleri
+  stadtSlug?: string
   searchParams?: {
     page?: string
     stadt?: string
@@ -62,11 +62,11 @@ interface FirmenListClientProps {
 
 export function FirmenListClient({
   initialData,
+  initialCount,
   stadtName,
+  stadtSlug,
   searchParams,
 }: FirmenListClientProps) {
-  const [firmen, setFirmen] = useState<Firma[]>(initialData)
-  const [loading, setLoading] = useState(false)
   const [selectedLeistungen, setSelectedLeistungen] = useState<string[]>([])
   const [nurGeprueft, setNurGeprueft] = useState(false)
   const [currentPage, setCurrentPage] = useState(
@@ -76,42 +76,44 @@ export function FirmenListClient({
 
   const stadt = searchParams?.stadt || ""
   const bundesland = searchParams?.bundesland || ""
+  const { data: fetchedFirmen, isLoading: loading } = useSWR(
+    ["directory-firmen", stadtSlug || "", stadt, bundesland],
+    async () => {
+      const allFirmen: Firma[] = []
+      const batchSize = 1000
 
-  // Filtre veya konum değişince sunucudan yeniden çek
-  useEffect(() => {
-    // initialData zaten şehir filtreli geldiyse (stadtName varsa) tekrar çekme
-    if (stadtName) return
+      for (let offset = 0; ; offset += batchSize) {
+        let query = supabase
+          .from("firmen")
+          .select("id, name, slug, stadt, stadt_slug, bundesland, bewertung, anzahl_bewertungen, geprueft, leistungen, google_bewertung, google_anzahl_bewertungen")
+          .eq("aktiv", true)
+          .order("google_bewertung", { ascending: false, nullsFirst: false })
+          .order("id")
 
-    const fetchFirmen = async () => {
-      setLoading(true)
+        if (stadtSlug) {
+          query = query.eq("stadt_slug", stadtSlug)
+        } else if (stadt) {
+          query = query.ilike("stadt", `%${stadt}%`)
+        }
 
-      let query = supabase
-        .from("firmen")
-        .select("*")
-        .eq("aktiv", true)
-        .order("google_bewertung", { ascending: false, nullsFirst: false })
+        if (bundesland) {
+          query = query.ilike("bundesland", `%${bundesland}%`)
+        }
 
-      if (stadt) {
-        query = query.ilike("stadt", `%${stadt}%`)
+        const { data, error } = await query.range(offset, offset + batchSize - 1)
+        if (error) throw error
+
+        const batch = (data ?? []) as Firma[]
+        allFirmen.push(...batch)
+        if (batch.length < batchSize) break
       }
 
-      if (bundesland) {
-        query = query.ilike("bundesland", `%${bundesland}%`)
-      }
-
-      const { data, error } = await query
-
-      if (error) {
-        console.error("Error fetching firmen:", error)
-        setFirmen([])
-      } else {
-        setFirmen(data || [])
-      }
-      setLoading(false)
-    }
-
-    fetchFirmen()
-  }, [stadt, bundesland, stadtName])
+      return allFirmen
+    },
+    { fallbackData: initialData },
+  )
+  const firmen = fetchedFirmen ?? initialData
+  const showLoading = loading && initialData.length === 0 && initialCount === undefined
 
   const handleLeistungChange = (leistung: string) => {
     setSelectedLeistungen((prev) =>
@@ -133,7 +135,11 @@ export function FirmenListClient({
     return true
   })
 
-  const totalPages = Math.ceil(filteredFirmen.length / ITEMS_PER_PAGE)
+  const resultCount =
+    !nurGeprueft && selectedLeistungen.length === 0
+      ? initialCount ?? filteredFirmen.length
+      : filteredFirmen.length
+  const totalPages = Math.ceil(resultCount / ITEMS_PER_PAGE)
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
   const paginatedFirmen = filteredFirmen.slice(
     startIndex,
@@ -145,11 +151,11 @@ export function FirmenListClient({
   }, [nurGeprueft, selectedLeistungen, stadt, bundesland])
 
   const pageTitle = stadtName
-    ? `Gerüstbaufirmen in ${stadtName}`
+    ? `Gerüstbau in ${stadtName}`
     : "Gerüstbaufirmen in Deutschland"
 
   const pageSubtitle = stadtName
-    ? `Finden Sie den passenden Gerüstbauer in ${stadtName}`
+    ? `Vergleichen Sie Gerüstbaufirmen in ${stadtName} und finden Sie den passenden Anbieter für Ihr Projekt.`
     : "Finden Sie den passenden Gerüstbauer für Ihr Projekt"
 
   return (
@@ -229,13 +235,13 @@ export function FirmenListClient({
             <div className="flex-1">
               <div className="flex items-center justify-between mb-6">
                 <p className="text-muted-foreground">
-                  {loading
+                  {showLoading
                     ? "Laden..."
-                    : `${filteredFirmen.length} Firmen gefunden`}
+                    : `${resultCount.toLocaleString("de-DE")} Firmen gefunden`}
                 </p>
               </div>
 
-              {loading ? (
+              {showLoading ? (
                 <div className="grid md:grid-cols-2 gap-6">
                   {[1, 2, 3, 4].map((i) => (
                     <Card key={i}>
@@ -428,7 +434,7 @@ export function FirmenListClient({
       )}
 
       <p className="text-center text-sm text-muted-foreground pb-8">
-        Seite {currentPage} von {totalPages} ({filteredFirmen.length} Firmen)
+        Seite {currentPage} von {totalPages} ({resultCount.toLocaleString("de-DE")} Firmen)
       </p>
     </div>
   )

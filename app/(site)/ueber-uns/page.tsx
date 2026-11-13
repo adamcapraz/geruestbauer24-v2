@@ -2,13 +2,19 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Shield, Star, Zap, Users, Target, Heart } from "lucide-react"
+import { getDirectoryStats } from "@/lib/directory-stats"
+import { createSeoMetadata } from "@/lib/seo"
 
-export const metadata = {
-  title: "Über uns - Gerüstbauer24",
-  description: "Erfahren Sie mehr über Gerüstbauer24 - Ihre Plattform für Gerüstbaufirmen in Deutschland.",
-}
+export const metadata = createSeoMetadata({
+  title: "Über uns – das Portal für Gerüstbau | Gerüstbauer24",
+  description:
+    "Gerüstbauer24 aus Hannover verbindet Bauherren mit geprüften Gerüstbaufirmen in ganz Deutschland. Erfahren Sie, wie wir Firmen prüfen und vermitteln.",
+  canonicalPath: "/ueber-uns",
+})
 
-export default function UeberUnsPage() {
+export default async function UeberUnsPage() {
+  const stats = await getDirectoryStats()
+
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
@@ -46,11 +52,11 @@ export default function UeberUnsPage() {
           <div className="bg-muted p-8 rounded-lg">
             <div className="grid grid-cols-2 gap-6 text-center">
               <div>
-                <p className="text-4xl font-bold text-primary">4.627+</p>
-                <p className="text-muted-foreground">Geprüfte Firmen</p>
+                <p className="text-4xl font-bold text-primary">{stats.companyCount.toLocaleString("de-DE")}</p>
+                <p className="text-muted-foreground">Firmen im Verzeichnis</p>
               </div>
               <div>
-                <p className="text-4xl font-bold text-primary">283+</p>
+                <p className="text-4xl font-bold text-primary">{stats.requestCount.toLocaleString("de-DE")}</p>
                 <p className="text-muted-foreground">Vermittelte Anfragen</p>
               </div>
               <div>
@@ -58,7 +64,7 @@ export default function UeberUnsPage() {
                 <p className="text-muted-foreground">Bundesländer</p>
               </div>
               <div>
-                <p className="text-4xl font-bold text-primary">4.7</p>
+                <p className="text-4xl font-bold text-primary">{stats.averageRating?.toLocaleString("de-DE", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) ?? "—"}</p>
                 <p className="text-muted-foreground">Durchschnittsbewertung</p>
               </div>
             </div>
@@ -179,7 +185,7 @@ export default function UeberUnsPage() {
                 Gerüstbauer finden
               </Button>
             </Link>
-            <Link href="/geruestbau/eintragen">
+            <Link href="/fuer-firmen">
               <Button size="lg" variant="outline" className="bg-transparent text-primary-foreground border-primary-foreground hover:bg-primary-foreground/10">
                 Firma eintragen
               </Button>

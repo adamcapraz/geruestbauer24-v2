@@ -17,8 +17,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Calendar, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react"
-
-const BASE_URL = "https://geruestbauer24.eu"
+import { BASE_URL, createSeoMetadata } from "@/lib/seo"
 const POSTS_PER_PAGE = 9
 
 interface BlogPageProps {
@@ -27,50 +26,15 @@ interface BlogPageProps {
 
 export async function generateMetadata({ searchParams }: BlogPageProps): Promise<Metadata> {
   const params = await searchParams
-  const currentPage = Math.max(1, parseInt(params.page || "1", 10))
+  const hasSearchParams = Object.keys(params).length > 0
 
-  const title =
-    currentPage > 1
-      ? `Blog – Seite ${currentPage} | Gerüstbauer24 Tipps & Ratgeber`
-      : "Blog | Gerüstbauer24 – Tipps & Ratgeber für Gerüstbau"
-
-  const description =
-    currentPage > 1
-      ? `Gerüstbau Blog – Seite ${currentPage}. Tipps, Ratgeber und Neuigkeiten rund um das Thema Gerüstbau.`
-      : "Entdecken Sie nützliche Tipps, Ratgeber und Neuigkeiten rund um das Thema Gerüstbau. Gerüstarten, Sicherheit und Branchentrends."
-
-  const canonicalUrl =
-    currentPage > 1 ? `${BASE_URL}/blog?page=${currentPage}` : `${BASE_URL}/blog`
-
-  const ogImageUrl = `${BASE_URL}/api/og?title=${encodeURIComponent("Gerüstbau Blog")}&subtitle=${encodeURIComponent("Tipps, Ratgeber & Neuigkeiten")}&type=blog`
-
-  return {
-    title,
-    description,
-    alternates: {
-      canonical: canonicalUrl,
-    },
-    openGraph: {
-      title,
-      description,
-      type: "website",
-      locale: "de_DE",
-      siteName: "Gerüstbauer24",
-      images: [
-        {
-          url: ogImageUrl,
-          width: 1200,
-          height: 630,
-          type: "image/png",
-          alt: "Gerüstbauer24 Blog – Tipps & Ratgeber",
-        },
-      ],
-    },
-    twitter: {
-      card: "summary_large_image",
-      images: [ogImageUrl],
-    },
-  }
+  return createSeoMetadata({
+    title: "Gerüstbau-Ratgeber: Kosten, Tipps & Recht | Gerüstbauer24",
+    description:
+      "Was kostet ein Gerüst? Welche Genehmigung brauche ich? Praxiswissen rund um Fassadengerüst, Baugerüst und Gerüstbau für Bauherren und Hausbesitzer.",
+    canonicalPath: "/blog",
+    ...(hasSearchParams ? { robots: { index: false, follow: true } } : {}),
+  })
 }
 
 export default async function BlogPage({ searchParams }: BlogPageProps) {

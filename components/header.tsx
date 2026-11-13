@@ -37,6 +37,9 @@ export default function Header() {
           <Link href="/geruestbau" className="text-foreground hover:text-primary transition-colors">
             Firmen
           </Link>
+          <Link href="/fuer-firmen" className="text-foreground hover:text-primary transition-colors">
+            Für Firmen
+          </Link>
           <Link href="/ueber-uns" className="text-foreground hover:text-primary transition-colors">
             Über uns
           </Link>
@@ -119,6 +122,10 @@ export default function Header() {
               <Link href="/geruestbau" className="flex items-center gap-2 py-2">
                 <Building2 size={18} />
                 Firmen
+              </Link>
+              <Link href="/fuer-firmen" className="flex items-center gap-2 py-2">
+                <Building2 size={18} />
+                Für Firmen
               </Link>
               <Link href="/ueber-uns" className="flex items-center gap-2 py-2">
                 Über uns

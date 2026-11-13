@@ -17,21 +17,17 @@ const inter = Inter({ subsets: ["latin"] })
 export const dynamic = "force-dynamic"
 
 export async function generateMetadata(): Promise<Metadata> {
-  const settings = await getSettingsByKeys([
-    "site_title",
-    "meta_description",
-    "og_image_url",
-  ])
-
-  const title = settings.site_title || "Gerüstbauer24 - Gerüstbaufirmen in Deutschland finden"
-  const description = settings.meta_description || "Finden Sie zuverlässige Gerüstbauer in Ihrer Region. Geprüfte Unternehmen, echte Bewertungen und schnelle Anfragen."
+  const settings = await getSettingsByKeys(["og_image_url"])
+  const title = "Gerüstbauer finden & Angebote vergleichen | Gerüstbauer24"
+  const description =
+    "Geprüfte Gerüstbaufirmen in ganz Deutschland: echte Bewertungen lesen, kostenlos mehrere Angebote anfordern und den passenden Gerüstbauer finden."
+  const image =
+    settings.og_image_url ||
+    `https://geruestbauer24.eu/api/og?title=${encodeURIComponent(title)}&type=city`
 
   return {
     metadataBase: new URL("https://geruestbauer24.eu"),
-    title: {
-      default: title,
-      template: `%s | Gerüstbauer24`,
-    },
+    title: { default: title, template: "%s | Gerüstbauer24" },
     description,
     generator: "v0.app",
     icons: {
@@ -41,7 +37,16 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       title,
       description,
-      ...(settings.og_image_url ? { images: [settings.og_image_url] } : {}),
+      type: "website",
+      locale: "de_DE",
+      siteName: "Gerüstbauer24",
+      images: [image],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [image],
     },
   }
 }
@@ -81,51 +86,6 @@ export default async function RootLayout({
       </head>
       <body className={`${inter.className} bg-background text-foreground min-h-screen`}>
 
-        <script
-          type="application/ld+json"
-          suppressHydrationWarning
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "Organization",
-              "name": "Gerüstbauer24",
-              "url": "https://geruestbauer24.eu",
-              "logo": "https://geruestbauer24.eu/placeholder-logo.png",
-              "description": "Finden Sie zuverlässige Gerüstbauer in Ihrer Region. Geprüfte Unternehmen, echte Bewertungen und schnelle Anfragen.",
-              "contactPoint": {
-                "@type": "ContactPoint",
-                "telephone": "+49-163-9540595",
-                "contactType": "customer service",
-                "availableLanguage": ["German"]
-              },
-              "sameAs": [],
-              "areaServed": {
-                "@type": "Country",
-                "name": "Germany"
-              }
-            }),
-          }}
-        />
-        <script
-          type="application/ld+json"
-          suppressHydrationWarning
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "WebSite",
-              "name": "Gerüstbauer24",
-              "url": "https://geruestbauer24.eu",
-              "potentialAction": {
-                "@type": "SearchAction",
-                "target": {
-                  "@type": "EntryPoint",
-                  "urlTemplate": "https://geruestbauer24.eu/geruestbau?q={search_term_string}"
-                },
-                "query-input": "required name=search_term_string"
-              }
-            }),
-          }}
-        />
         <ConsentManager
           enabled={analyticsSettings.cookie_consent_enabled === "true"}
           title={analyticsSettings.cookie_consent_title}

@@ -20,8 +20,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Calendar, Clock, ArrowLeft, ArrowRight, Share2 } from "lucide-react"
-
-const BASE_URL = "https://geruestbauer24.eu"
+import { BASE_URL, createSeoMetadata, fitSeoText } from "@/lib/seo"
 
 interface BlogDetailPageProps {
   params: Promise<{ slug: string }>
@@ -33,49 +32,45 @@ export const dynamic = "force-dynamic"
 export async function generateMetadata({ params }: BlogDetailPageProps): Promise<Metadata> {
   const { slug } = await params
   const supabase = await createClient()
-
   const { data: post } = await supabase
     .from("blog_posts")
-    .select("title, summary, image_url, category")
+    .select("title, summary, content, image_url, category")
     .eq("slug", slug)
     .eq("is_published", true)
-    .single()
+    .maybeSingle()
 
   if (!post) {
-    return { title: "Beitrag nicht gefunden" }
+    return createSeoMetadata({
+      title: "Beitrag nicht gefunden | Gerüstbauer24",
+      description: "Der angeforderte Ratgeberbeitrag ist nicht verfügbar.",
+      canonicalPath: `/blog/${slug}`,
+      robots: { index: false, follow: true },
+    })
   }
 
-  // Dinamik OG görseli — blog yazısı başlığını içerir
-  const ogImageUrl = `${BASE_URL}/api/og?title=${encodeURIComponent(post.title)}&subtitle=${encodeURIComponent(post.category || "Gerüstbau Ratgeber")}&type=blog`
+  const contentExcerpt = (post.content ?? "")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;|&apos;/g, "'")
+    .replace(/\s+/g, " ")
+    .trim()
+  const description = fitSeoText(
+    post.summary?.trim() || contentExcerpt || "Praxiswissen rund um Gerüstbau für Bauherren und Hausbesitzer.",
+    155,
+  )
+  const image =
+    post.image_url ||
+    `${BASE_URL}/api/og?title=${encodeURIComponent(post.title)}&subtitle=${encodeURIComponent(post.category || "Gerüstbau-Ratgeber")}&type=blog`
 
-  return {
-    title: `${post.title} | Gerüstbauer24 Blog`,
-    description: post.summary,
-    alternates: {
-      canonical: `${BASE_URL}/blog/${slug}`,
-    },
-    openGraph: {
-      title: post.title,
-      description: post.summary,
-      type: "article",
-      locale: "de_DE",
-      siteName: "Gerüstbauer24",
-      images: [
-        {
-          // Eğer gerçek bir görsel varsa onu kullan, yoksa dinamik OG görseli
-          url: post.image_url || ogImageUrl,
-          width: 1200,
-          height: 630,
-          type: post.image_url ? "image/jpeg" : "image/png",
-          alt: post.title,
-        },
-      ],
-    },
-    twitter: {
-      card: "summary_large_image",
-      images: [post.image_url || ogImageUrl],
-    },
-  }
+  return createSeoMetadata({
+    title: `${post.title} | Gerüstbauer24 Ratgeber`,
+    description,
+    canonicalPath: `/blog/${slug}`,
+    image,
+    type: "article",
+  })
 }
 
 export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
@@ -121,8 +116,8 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
     "headline": post.title,
     "description": post.summary,
     "image": post.image_url || `${BASE_URL}/placeholder-logo.png`,
-    "datePublished": post.published_at,
-    "dateModified": post.updated_at || post.published_at,
+    "datePublished": post.published_at || post.created_at,
+    "dateModified": post.updated_at || post.published_at || post.created_at,
     "author": {
       "@type": "Organization",
       "name": "Gerüstbauer24",

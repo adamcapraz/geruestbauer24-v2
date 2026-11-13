@@ -1,8 +1,8 @@
 "use client"
 
 import React from "react"
-import { useState, useEffect } from "react"
-import { useParams, useRouter } from "next/navigation"
+import { useState } from "react"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
@@ -11,7 +11,6 @@ import { Badge } from "@/components/ui/badge"
 import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Skeleton } from "@/components/ui/skeleton"
 import { useToast } from "@/hooks/use-toast"
 import {
   Accordion,
@@ -65,44 +64,16 @@ type Firma = {
   google_letzte_aktualisierung: string | null
 }
 
-export default function FirmaDetailClient() {
-  const [firma, setFirma] = useState<Firma | null>(null)
-  const [loading, setLoading] = useState(true)
+export default function FirmaDetailClient({ initialFirma }: { initialFirma: Firma }) {
+  const firma = initialFirma
   const [anfrageName, setAnfrageName] = useState("")
   const [anfrageEmail, setAnfrageEmail] = useState("")
   const [anfrageTelefon, setAnfrageTelefon] = useState("")
   const [anfrageNachricht, setAnfrageNachricht] = useState("")
   const [sendingAnfrage, setSendingAnfrage] = useState(false)
-  const params = useParams()
   const router = useRouter()
   const { toast } = useToast()
   const supabase = createClient()
-
-  const stadtSlug = params?.stadt as string
-  const firmaSlug = params?.firma as string
-
-  useEffect(() => {
-    const fetchFirma = async () => {
-      const { data, error } = await supabase
-        .from("firmen")
-        .select("*")
-        .eq("stadt_slug", stadtSlug)
-        .eq("slug", firmaSlug)
-        .eq("aktiv", true)
-        .single()
-
-      if (error || !data) {
-        setFirma(null)
-      } else {
-        setFirma(data)
-      }
-      setLoading(false)
-    }
-
-    if (stadtSlug && firmaSlug) {
-      fetchFirma()
-    }
-  }, [stadtSlug, firmaSlug])
 
   const handleAnfrageSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -183,30 +154,6 @@ export default function FirmaDetailClient() {
       answer: `${firma.name} hat eine Bewertung von ${displayRating.toFixed(1)} von 5 Sternen bei ${displayReviewCount} Bewertungen. Diese Bewertungen stammen von Kunden, die bereits Erfahrungen mit ${firma.name} gemacht haben.`
     }
   ] : []
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <div className="bg-slate-900 py-8 px-4">
-          <div className="container mx-auto">
-            <Skeleton className="h-10 w-3/4 bg-slate-700" />
-            <Skeleton className="h-6 w-1/2 mt-4 bg-slate-700" />
-          </div>
-        </div>
-        <div className="container mx-auto px-4 py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 space-y-6">
-              <Skeleton className="h-40 w-full" />
-              <Skeleton className="h-60 w-full" />
-            </div>
-            <div className="lg:col-span-1">
-              <Skeleton className="h-96 w-full" />
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
 
   if (!firma) {
     return (
