@@ -127,11 +127,11 @@ export default async function Footer() {
             <p>{"© "}{new Date().getFullYear()}{" Gerüstbauer24. Alle Rechte vorbehalten."}</p>
             <span aria-hidden="true">·</span>
             <Link
-              href="/"
-              title="Gerüstbauer24"
+              href="https://solaranbieter24.de"
+              title="solaranbieter"
               className="text-slate-300 transition-colors hover:text-primary hover:underline"
             >
-              Gerüstbauer24
+              solaranbieter
             </Link>
           </div>
         </div>
