@@ -123,7 +123,17 @@ export default async function Footer() {
         </div>
 
         <div className="border-t border-slate-700 mt-8 pt-6 text-center text-slate-400">
-          <p>{"© "}{new Date().getFullYear()}{" Gerüstbauer24. Alle Rechte vorbehalten."}</p>
+          <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1">
+            <p>{"© "}{new Date().getFullYear()}{" Gerüstbauer24. Alle Rechte vorbehalten."}</p>
+            <span aria-hidden="true">·</span>
+            <Link
+              href="/"
+              title="Gerüstbauer24"
+              className="text-slate-300 transition-colors hover:text-primary hover:underline"
+            >
+              Gerüstbauer24
+            </Link>
+          </div>
         </div>
       </div>
     </footer>
