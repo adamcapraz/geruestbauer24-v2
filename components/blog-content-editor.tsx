@@ -18,13 +18,13 @@ export function BlogContentEditor({ value, onChange }: Props) {
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
-      StarterKit.configure({ heading: { levels: [2, 3] } }),
+      StarterKit.configure({ heading: { levels: [1, 2, 3, 4] } }),
       Link.configure({ openOnClick: false, protocols: ["http", "https", "mailto"] }),
       Image.configure({ inline: false, allowBase64: false }),
     ],
     content: value || "",
     onUpdate: ({ editor: current }) => onChange(sanitizeBlogHtml(current.getHTML())),
-    editorProps: { attributes: { class: "prose prose-sm max-w-none min-h-56 px-4 py-3 outline-none focus:outline-none" } },
+    editorProps: { attributes: { class: "blog-rich-content min-h-56 px-4 py-3 outline-none focus:outline-none" } },
   })
 
   useEffect(() => {
@@ -67,8 +67,10 @@ export function BlogContentEditor({ value, onChange }: Props) {
 
   const toolbar = [
     { label: "Absatz", icon: Pilcrow, run: () => editor?.chain().focus().setParagraph().run(), active: editor?.isActive("paragraph") },
+    { label: "H1", icon: Heading2, run: () => editor?.chain().focus().toggleHeading({ level: 1 }).run(), active: editor?.isActive("heading", { level: 1 }) },
     { label: "H2", icon: Heading2, run: () => editor?.chain().focus().toggleHeading({ level: 2 }).run(), active: editor?.isActive("heading", { level: 2 }) },
     { label: "H3", icon: Heading3, run: () => editor?.chain().focus().toggleHeading({ level: 3 }).run(), active: editor?.isActive("heading", { level: 3 }) },
+    { label: "H4", icon: Heading3, run: () => editor?.chain().focus().toggleHeading({ level: 4 }).run(), active: editor?.isActive("heading", { level: 4 }) },
     { label: "Fett", icon: Bold, run: () => editor?.chain().focus().toggleBold().run(), active: editor?.isActive("bold") },
     { label: "Kursiv", icon: Italic, run: () => editor?.chain().focus().toggleItalic().run(), active: editor?.isActive("italic") },
     { label: "Aufzählung", icon: List, run: () => editor?.chain().focus().toggleBulletList().run(), active: editor?.isActive("bulletList") },
@@ -98,14 +100,14 @@ export function BlogContentEditor({ value, onChange }: Props) {
         </div>
       </div>
       {preview ? (
-        <div className="prose prose-slate dark:prose-invert max-w-none min-h-56 p-4" dangerouslySetInnerHTML={{ __html: sanitizeBlogHtml(value) }} />
+        <div className="blog-rich-content min-h-56 p-4" dangerouslySetInnerHTML={{ __html: sanitizeBlogHtml(value) }} />
       ) : mode === "source" ? (
         <Textarea aria-label="HTML kaynağı" value={value} onChange={(event) => setSource(event.target.value)} rows={11} className="min-h-56 resize-y rounded-none border-0 font-mono text-sm focus-visible:ring-0" placeholder="<p>Dein Beitragstext ...</p>" />
       ) : (
         <EditorContent editor={editor} />
       )}
       <div className="flex flex-col gap-2 border-t p-2 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-xs text-muted-foreground">Erlaubt: h2, h3, p, ul, ol, li, a, strong, em, img, blockquote</p>
+        <p className="text-xs text-muted-foreground">Erlaubt: h1, h2, h3, h4, p, ul, ol, li, a, strong, em, img, blockquote</p>
         <Button type="button" size="sm" variant={preview ? "secondary" : "outline"} onClick={() => setPreview(!preview)}>{preview ? "Zur Bearbeitung" : "Vorschau anzeigen"}</Button>
       </div>
     </section>
