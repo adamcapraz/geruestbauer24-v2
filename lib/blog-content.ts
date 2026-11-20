@@ -1,7 +1,7 @@
 import sanitizeHtml from "sanitize-html"
 
 export const BLOG_ALLOWED_TAGS = [
-  "h2", "h3", "p", "ul", "ol", "li", "a", "strong", "em", "img", "blockquote",
+  "h1", "h2", "h3", "h4", "p", "ul", "ol", "li", "a", "strong", "em", "img", "blockquote",
 ]
 
 export function sanitizeBlogHtml(html: string) {
