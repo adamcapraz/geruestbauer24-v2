@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Calendar, Clock, ArrowLeft, ArrowRight, Share2 } from "lucide-react"
 import { BASE_URL, createSeoMetadata, fitSeoText } from "@/lib/seo"
+import { sanitizeBlogHtml } from "@/lib/blog-content"
 
 interface BlogDetailPageProps {
   params: Promise<{ slug: string }>
@@ -223,7 +224,7 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
                 prose-ul:text-muted-foreground prose-ol:text-muted-foreground
                 prose-li:marker:text-orange-500
                 prose-img:rounded-lg prose-img:shadow-md"
-              dangerouslySetInnerHTML={{ __html: post.content || "" }}
+              dangerouslySetInnerHTML={{ __html: sanitizeBlogHtml(post.content || "") }}
             />
 
             {tags.length > 0 && (

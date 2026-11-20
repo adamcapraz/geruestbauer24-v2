@@ -13,6 +13,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useToast } from "@/hooks/use-toast"
+import { BlogContentEditor } from "@/components/blog-content-editor"
+import { sanitizeBlogHtml, validateBlogHtml } from "@/lib/blog-content"
 import { Plus, Pencil, Trash2, Eye, Search, FileText, X, ImageIcon, ExternalLink } from "lucide-react"
 
 interface BlogPost {
@@ -162,13 +164,19 @@ export default function AdminBlog() {
       return
     }
 
+    const contentError = validateBlogHtml(formData.content)
+    if (contentError) {
+      toast({ title: "Inhalt prüfen", description: contentError, variant: "destructive" })
+      return
+    }
+
     setSaving(true)
 
     const postData = {
       title: formData.title.trim(),
       slug: formData.slug.trim(),
       summary: formData.summary.trim(),
-      content: formData.content,
+      content: sanitizeBlogHtml(formData.content),
       image_url: formData.image_url.trim() || null,
       category: formData.category || null,
       tags: formData.tags,
@@ -539,20 +547,13 @@ export default function AdminBlog() {
               )}
             </div>
 
-            {/* Content (HTML) */}
-            <div className="space-y-2">
-              <Label htmlFor="content">Inhalt (HTML)</Label>
-              <Textarea
-                id="content"
+            {/* Blog content editor */}
+            <div className="flex flex-col gap-2">
+              <Label>Inhalt *</Label>
+              <BlogContentEditor
                 value={formData.content}
-                onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
-                placeholder="<h2>Überschrift</h2><p>Inhalt...</p>"
-                rows={12}
-                className="font-mono text-sm"
+                onChange={(content) => setFormData(prev => ({ ...prev, content }))}
               />
-              <p className="text-xs text-muted-foreground">
-                Unterstützte Tags: h2, h3, p, ul, ol, li, a, strong, em, img, blockquote
-              </p>
             </div>
 
             {/* Publish Toggle */}
