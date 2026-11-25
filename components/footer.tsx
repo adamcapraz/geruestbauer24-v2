@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { Phone, Mail, Clock, MapPin } from "lucide-react"
 import { getSettingsByKeys } from "@/lib/settings"
-import { CookieSettingsButton } from "@/components/consent-manager"
+import { GooglePrivacySettingsLink } from "@/components/google-consent-tools"
 
 export default async function Footer() {
   const settings = await getSettingsByKeys([
@@ -88,7 +88,7 @@ export default async function Footer() {
                 </Link>
               </li>
               <li>
-                <CookieSettingsButton />
+                <GooglePrivacySettingsLink />
               </li>
             </ul>
           </div>
