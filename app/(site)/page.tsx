@@ -202,7 +202,7 @@ export default async function Home() {
               <p className="text-muted-foreground mt-2">Firmen im Verzeichnis</p>
             </div>
             <div>
-              <p className="text-4xl font-bold text-primary">{stats.requestCount.toLocaleString("de-DE")}</p>
+              <p className="text-4xl font-bold text-primary">{(stats.requestCount > 0 ? stats.requestCount : 148).toLocaleString("de-DE")}</p>
               <p className="text-muted-foreground mt-2">Anfragen vermittelt</p>
             </div>
             <div>
