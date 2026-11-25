@@ -3,7 +3,7 @@ import type { Metadata } from "next"
 import { headers } from "next/headers"
 import { Inter } from "next/font/google"
 import { Toaster } from "@/components/ui/toaster"
-import ConsentManager from "@/components/consent-manager"
+import { GoogleAdSenseBodyCode } from "@/components/google-consent-tools"
 import { AdminHeadContent } from "@/components/admin-head-content"
 import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/components/auth-provider"
@@ -56,16 +56,11 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  const [analyticsSettings, requestHeaders] = await Promise.all([
+  const [siteSettings, requestHeaders] = await Promise.all([
     getSettingsByKeys([
-      "google_analytics_id",
-      "google_tag_manager_id",
       "google_adsense_code",
       "custom_head_scripts",
       "google_adsense_body_code",
-      "cookie_consent_enabled",
-      "cookie_consent_title",
-      "cookie_consent_text",
     ]),
     headers(),
   ])
@@ -80,19 +75,15 @@ export default async function RootLayout({
     <html lang="de" suppressHydrationWarning>
       <head>
         <AdminHeadContent
-          snippets={[analyticsSettings.google_adsense_code, analyticsSettings.custom_head_scripts]}
+          snippets={[siteSettings.google_adsense_code, siteSettings.custom_head_scripts]}
           allowAdSense={allowAdSense}
         />
       </head>
       <body className={`${inter.className} bg-background text-foreground min-h-screen`}>
 
-        <ConsentManager
-          enabled={analyticsSettings.cookie_consent_enabled === "true"}
-          title={analyticsSettings.cookie_consent_title}
-          text={analyticsSettings.cookie_consent_text}
-          analyticsId={analyticsSettings.google_analytics_id}
-          tagManagerId={analyticsSettings.google_tag_manager_id}
-          adsenseCode={analyticsSettings.google_adsense_body_code}
+        <GoogleAdSenseBodyCode
+          enabled={allowAdSense}
+          code={siteSettings.google_adsense_body_code || ""}
         />
         <AuthProvider>
           <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>

@@ -73,9 +73,6 @@ const SETTINGS_GROUPS: SettingsGroup[] = [
       "impressum_geschaeftsfuehrer",
       "impressum_registergericht",
       "datenschutz_text",
-      "cookie_consent_enabled",
-      "cookie_consent_title",
-      "cookie_consent_text",
       "widerrufsbelehrung_text",
     ],
   },
@@ -127,9 +124,6 @@ const LABELS: Record<string, string> = {
   impressum_geschaeftsfuehrer: "Geschäftsführer",
   impressum_registergericht: "Registergericht",
   datenschutz_text: "Datenschutzerklärung",
-  cookie_consent_enabled: "Cookie-Banner aktiviert",
-  cookie_consent_title: "Cookie-Banner Überschrift",
-  cookie_consent_text: "Cookie-Banner Beschreibung",
   widerrufsbelehrung_text: "Widerrufsbelehrung",
   google_adsense_id: "Google AdSense Publisher ID",
   google_adsense_code: "Google AdSense-Code (<head>)",
@@ -150,8 +144,6 @@ const PLACEHOLDERS: Record<string, string> = {
   og_image_url: "https://example.com/og-image.jpg",
   google_analytics_id: "G-XXXXXXXXXX",
   google_tag_manager_id: "GTM-XXXXXXX",
-  cookie_consent_title: "Ihre Datenschutzeinstellungen",
-  cookie_consent_text: "Wir verwenden notwendige Technologien für den Betrieb der Website. Statistik- und Marketing-Technologien werden nur nach Ihrer Auswahl geladen. Ihre Auswahl können Sie jederzeit über „Cookie-Einstellungen“ ändern.",
   google_search_console_verification: "Verifizierungscode",
   bing_webmaster_verification: "Verifizierungscode",
   schema_org_type: "LocalBusiness",
@@ -171,8 +163,8 @@ const PLACEHOLDERS: Record<string, string> = {
   featured_firma_id: "Firma UUID",
 }
 
-const TEXTAREA_KEYS = ["datenschutz_text", "cookie_consent_text", "widerrufsbelehrung_text", "meta_description", "custom_head_scripts", "google_adsense_code", "google_adsense_body_code", ...EDITABLE_PAGES.map(({ slug }) => `page_${slug}_content`)]
-const BOOLEAN_KEYS = ["cookie_consent_enabled", "featured_firma_enabled", "banner_ads_enabled"]
+const TEXTAREA_KEYS = ["datenschutz_text", "widerrufsbelehrung_text", "meta_description", "custom_head_scripts", "google_adsense_code", "google_adsense_body_code", ...EDITABLE_PAGES.map(({ slug }) => `page_${slug}_content`)]
+const BOOLEAN_KEYS = ["featured_firma_enabled", "banner_ads_enabled"]
 
 export default function AdminEinstellungen() {
   const supabase = createClient()
